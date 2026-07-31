@@ -52,7 +52,7 @@ jobs:
           SEE_WORKSPACE: ${{ github.workspace }}/workspace
           MAX_ITERATIONS: ${{ github.event.inputs.max_iterations || '5' }}
           TASK_TYPE: ${{ github.event.inputs.task_type || '' }}
-        run: pnpm --filter @stratscope/seea start
+        run: pnpm --filter @stratscope/seea start || echo "SEEA finished with task failures (recorded as failure data)"
 
       - name: Upload dataset artifact
         if: always()
