@@ -16,3 +16,8 @@ vars = { ENVIRONMENT = "production" }
 binding = "DB"
 database_name = "agent-os-gateway"
 database_id = "30a87a96-fbc0-4ec9-8378-95c1bc022187"
+
+# KV namespace (binding name: KV) — rate limiting counters.
+[[kv_namespaces]]
+binding = "KV"
+id = "f4a9f14cea3a4dc9ac05716167040224"

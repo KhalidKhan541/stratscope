@@ -95,6 +95,11 @@ export function rateLimit(options: RateLimitOptions) {
   const keyPrefix = options.keyPrefix ?? "rl";
 
   return async (c: Context<{ Bindings: Env }>, next: Next): Promise<Response | void> => {
+    if (!c.env.KV) {
+      await next();
+      return;
+    }
+
     const auth = (c as unknown as { get(key: string): unknown }).get("auth") as { apiKeyId?: string } | undefined;
     const apiKeyId = auth?.apiKeyId ?? "anonymous";
     const key = `${keyPrefix}:${apiKeyId}`;

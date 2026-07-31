@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+﻿import { Hono } from "hono";
 import { z } from "zod";
 import type { Env } from "../../workers/env.js";
 import { validate } from "../../middleware/validate.js";
@@ -45,7 +45,7 @@ seeaExecutions.post(
   "/events",
   validate({ body: executionEventSchema }),
   async (c) => {
-    const body = c.req.valid("json") as any;
+    const body = (await c.req.json()) as any;
 
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
@@ -74,36 +74,39 @@ seeaExecutions.post(
   "/records",
   validate({ body: executionRecordSchema }),
   async (c) => {
-    const body = c.req.valid("json") as any;
+    const body = (await c.req.json()) as any;
 
-    const id = crypto.randomUUID();
+    const id = body.execution_id;
     const now = new Date().toISOString();
 
     await c.env.DB.prepare(
-      `INSERT INTO executions (id, organization_id, project_id, agent_id, status, input, model, metadata, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT OR IGNORE INTO executions (id, organization_id, project_id, agent_id, status, model, metadata, created_at, latency_ms, total_tokens, estimated_cost, error)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         id,
-        "",
-        "",
+        "demo-org",
+        "demo-project-1",
         "seea-agent",
         body.status,
+        body.model,
         JSON.stringify({
           task_id: body.task_id,
           task_type: body.task_type,
           task_title: body.task_title,
-        }),
-        body.model,
-        JSON.stringify({
           duration_ms: body.duration_ms,
           tokens_used: body.tokens_used,
           cost_usd: body.cost_usd,
           tools_used: body.tools_used,
           errors: body.errors,
           retry_count: body.retry_count,
+          output: body.output,
         }),
-        now
+        now,
+        body.duration_ms,
+        body.tokens_used,
+        body.cost_usd,
+        body.errors.length > 0 ? body.errors.join("; ") : null
       )
       .run();
 
@@ -115,25 +118,40 @@ seeaExecutions.post(
   "/datasets",
   validate({ body: datasetSchema }),
   async (c) => {
-    const body = c.req.valid("json") as any;
+    const body = (await c.req.json()) as any;
+
+    const datasetId = body.dataset_id || crypto.randomUUID();
+    const version = body.version || "1.0.0";
+
+    const existing = await c.env.DB.prepare(
+      `SELECT id FROM dataset_versions WHERE dataset_id = ? AND version = ?`
+    )
+      .bind(datasetId, version)
+      .first<{ id: string }>();
+
+    if (existing) {
+      return c.json({ success: true, id: existing.id }, 200);
+    }
 
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
 
     await c.env.DB.prepare(
-      `INSERT INTO dataset_versions (id, dataset_id, version, description, status, row_count, schema_hash, checksum, consent_verified, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO dataset_versions (id, dataset_id, version, record_count, schema_definition, checksum, change_summary, metadata, organization_id, status, filters, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         id,
-        body.dataset_id || crypto.randomUUID(),
-        body.version || "1.0.0",
-        body.description || "SEEA execution dataset",
-        "draft",
+        datasetId,
+        version,
         body.record_count || 0,
-        body.schema_hash || "",
+        "{}",
         body.checksum || "",
-        1,
+        "",
+        JSON.stringify({ description: body.description || "" }),
+        "demo-org",
+        "draft",
+        "{}",
         now
       )
       .run();
