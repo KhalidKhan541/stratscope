@@ -39,3 +39,6 @@ coverage/
 # Logs
 *.log
 npm-debug.log*
+
+# Workspace
+workspace/

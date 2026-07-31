@@ -2,8 +2,11 @@ import { Hono } from "hono";
 import { z } from "zod";
 import type { Env } from "../../workers/env.js";
 import { validate } from "../../middleware/validate.js";
+import { apiKeyAuth } from "../../middleware/apiKeyAuth.js";
 
 const seeaExecutions = new Hono<{ Bindings: Env }>();
+
+seeaExecutions.use("*", apiKeyAuth);
 
 const executionEventSchema = z.object({
   execution_id: z.string().min(1),
