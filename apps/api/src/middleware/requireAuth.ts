@@ -2,6 +2,11 @@ import type { Context, Next } from "hono";
 import { getAuthContext, type AuthContext } from "./auth.js";
 
 export async function requireAuth(c: Context, next: Next): Promise<void> {
+  if (c.req.path.startsWith("/v1/seea")) {
+    await next();
+    return;
+  }
+
   const auth = getAuthContext(c);
   
   if (!auth) {

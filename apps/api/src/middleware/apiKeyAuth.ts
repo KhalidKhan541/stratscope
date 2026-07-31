@@ -19,7 +19,7 @@ type ApiKeyAuthContext = Context<{
   Variables: { apiKeyAuth: ApiKeyAuth };
 }>;
 
-export async function apiKeyAuth(c: Context, next: Next): Promise<void> {
+export async function apiKeyAuth(c: Context, next: Next): Promise<Response | void> {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -55,7 +55,7 @@ export async function apiKeyAuth(c: Context, next: Next): Promise<void> {
     const keyHash = await sha256Hex(apiKey);
 
     const result = await db
-      .prepare("SELECT id, name FROM api_keys WHERE key_hash = ?1 AND revoked_at IS NULL")
+      .prepare("SELECT id, name FROM api_keys WHERE key_hash = ?1 AND deleted_at IS NULL")
       .bind(keyHash)
       .first<{ id: string; name: string }>();
 
@@ -87,7 +87,7 @@ export async function apiKeyAuth(c: Context, next: Next): Promise<void> {
       })
     );
 
-    c.json(
+    return c.json(
       {
         error: {
           code: "INTERNAL_ERROR",
