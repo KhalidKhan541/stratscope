@@ -95,7 +95,7 @@ export class SeeaAgent {
       task_id: task.id,
       task_type: task.type,
       task_title: task.title,
-      model: "",
+      model: this.config.model,
       started_at: new Date().toISOString(),
     });
 
