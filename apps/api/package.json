@@ -1,0 +1,35 @@
+{
+  "name": "@stratscope/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:local": "wrangler dev --local",
+    "deploy": "wrangler deploy",
+    "deploy:prod": "wrangler deploy --env production",
+    "db:local": "wrangler d1 migrations apply stratscope-dev --local",
+    "db:prod": "wrangler d1 migrations apply stratscope-prod --env production",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run --reporter=verbose src/**/*.unit.test.ts",
+    "test:integration": "vitest run --reporter=verbose src/**/*.integration.test.ts",
+    "test:local": "vitest run --reporter=verbose tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.0",
+    "@stratscope/core": "workspace:*",
+    "@stratscope/events": "workspace:*",
+    "hono": "^4.6.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "@types/node": "^22.0.0",
+    "miniflare": "^3.20240925.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0",
+    "wrangler": "^3.90.0"
+  }
+}

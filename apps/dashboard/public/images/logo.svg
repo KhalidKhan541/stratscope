@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="transparent"/>
+  <g transform="translate(100, 100)">
+    <!-- Outer shape -->
+    <path d="M-60,-70 L60,-70 L70,-60 L70,60 L60,70 L-60,70 L-70,60 L-70,-60 Z" 
+          fill="none" stroke="#0F172A" stroke-width="6" stroke-linejoin="miter"/>
+    <!-- Second layer -->
+    <path d="M-42,-52 L42,-52 L50,-44 L50,44 L42,52 L-42,52 L-50,44 L-50,-44 Z" 
+          fill="none" stroke="#0F172A" stroke-width="6" stroke-linejoin="miter"/>
+    <!-- Third layer -->
+    <path d="M-24,-34 L24,-34 L32,-26 L32,26 L24,34 L-24,34 L-32,26 L-32,-26 Z" 
+          fill="none" stroke="#0F172A" stroke-width="6" stroke-linejoin="miter"/>
+    <!-- Inner core -->
+    <path d="M-6,-16 L6,-16 L14,-8 L14,8 L6,16 L-6,16 L-14,8 L-14,-8 Z" 
+          fill="none" stroke="#0F172A" stroke-width="6" stroke-linejoin="miter"/>
+  </g>
+</svg>

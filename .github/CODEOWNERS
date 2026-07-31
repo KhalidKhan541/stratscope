@@ -1,0 +1,14 @@
+# Default code owners
+* @stratscope/engineering
+
+# API
+/apps/api/ @stratscope/backend
+
+# Dashboard
+/apps/dashboard/ @stratscope/frontend
+
+# SDK
+/sdk/ @stratscope/sdk-team
+
+# Core packages
+/packages/ @stratscope/platform

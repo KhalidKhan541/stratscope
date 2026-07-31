@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developers — StratScope AI</title>
+  <meta name="description" content="SDKs and APIs for submitting agent execution traces and accessing execution datasets, benchmarks and evaluations." />
+  <link rel="icon" type="image/png" href="StratScope-logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="navbar" id="navbar">
+    <div class="nav-inner container">
+      <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="datasets.html">Datasets</a>
+        <a href="benchmarks.html">Benchmarks</a>
+        <a href="agents.html">Agents</a>
+        <a href="research.html">Research</a>
+        <a href="developers.html" class="active">Developers</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-sm">Get started</a>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="container">
+        <p class="eyebrow">Developers</p>
+        <h1>SDKs and APIs for every stack.</h1>
+        <p>Submit execution traces in minutes, query the execution corpus, and run evaluations against benchmarks derived from real-world agent runs.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid-2 reveal">
+          <div>
+            <div class="section-head">
+              <h2 class="section-title">Submit your first trace.</h2>
+              <p class="section-sub">One POST request. Your agent is registered, and your first execution trace is captured.</p>
+            </div>
+            <ul class="checklist">
+              <li>REST API with JSON over HTTPS</li>
+              <li>Python and TypeScript SDKs</li>
+              <li>Webhook delivery for trace events</li>
+              <li>Idempotent, retry-safe ingestion</li>
+            </ul>
+            <p class="section-sub">Get an API key: <a href="mailto:khalidkhan46572@gmail.com">khalidkhan46572@gmail.com</a></p>
+          </div>
+          <div class="code-block-wrap">
+            <pre class="code-block">curl -X POST https://api.stratscope.ai/v1/traces \
+  -H "Authorization: Bearer $STRATSCOPE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "support-bot-v3",
+    "task": "process_refund",
+    "trace": [
+      {"step": 1, "tool": "search_tickets", "status": "ok", "latency_ms": 312},
+      {"step": 2, "tool": "verify_auth", "status": "ok", "latency_ms": 89}
+    ],
+    "outcome": "success",
+    "cost_usd": 0.0012
+  }'</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">SDKs and tools.</h2>
+        </div>
+        <div class="grid-3 reveal">
+          <div class="card">
+            <span class="tag">pip install</span>
+            <h3 class="card-title">Python SDK</h3>
+            <p class="card-text">pip install stratscope — Trace capture, batching and retry handling for any Python agent framework.</p>
+          </div>
+          <div class="card">
+            <span class="tag">npm install</span>
+            <h3 class="card-title">TypeScript SDK</h3>
+            <p class="card-text">npm install @stratscope/sdk — First-class support for Node.js and edge runtimes.</p>
+          </div>
+          <div class="card">
+            <span class="tag">HTTP</span>
+            <h3 class="card-title">REST API</h3>
+            <p class="card-text">JSON over HTTPS with idempotent ingestion and rich query support.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Events</span>
+            <h3 class="card-title">Webhooks</h3>
+            <p class="card-text">Real-time delivery of trace events, benchmark runs and dataset releases.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Tools</span>
+            <h3 class="card-title">CLI</h3>
+            <p class="card-text">stratscope trace / stratscope eval — Inspect traces and run evaluations from your terminal.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Coming soon</span>
+            <h3 class="card-title">Control plane</h3>
+            <p class="card-text">Datasets, evals and access management in one dashboard.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">API reference.</h2>
+        </div>
+        <div class="table-wrap reveal">
+          <table class="data-table">
+            <thead>
+              <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>/v1/traces</td><td>POST</td><td>Submit an execution trace</td></tr>
+              <tr><td>/v1/agents</td><td>POST</td><td>Register an agent and configure sharing</td></tr>
+              <tr><td>/v1/datasets</td><td>GET</td><td>Browse and sample the execution corpus</td></tr>
+              <tr><td>/v1/benchmarks</td><td>GET</td><td>List benchmarks and methodology</td></tr>
+              <tr><td>/v1/evaluations</td><td>POST</td><td>Run an evaluation against a benchmark</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">Get API access.</h2>
+          <p class="section-sub">Tell us about your agents and we'll set you up with a key and a starter dataset.</p>
+        </div>
+        <form class="form-card reveal" id="accessForm">
+          <label for="accName">Name</label>
+          <input type="text" id="accName" name="name" required />
+          <label for="accEmail">Work email</label>
+          <input type="email" id="accEmail" name="email" required />
+          <label for="accCompany">Company</label>
+          <input type="text" id="accCompany" name="company" />
+          <label for="accInterest">Interest</label>
+          <select id="accInterest" name="interest">
+            <option value="datasets">Execution datasets</option>
+            <option value="benchmarks">Benchmarks &amp; evals</option>
+            <option value="sdk">Trace submission SDKs</option>
+            <option value="other">Something else</option>
+          </select>
+          <label for="accMsg">Message</label>
+          <textarea id="accMsg" name="message" placeholder="Tell us about your agents..."></textarea>
+          <button type="submit" class="btn btn-primary">Request access</button>
+        </form>
+        <script>
+        document.getElementById("accessForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var name = document.getElementById("accName").value;
+          var company = document.getElementById("accCompany").value;
+          var interest = document.getElementById("accInterest").value;
+          var msg = document.getElementById("accMsg").value;
+          var body = "Name: " + name + "\nCompany: " + company + "\nInterest: " + interest + "\nMessage: " + msg;
+          window.location.href = "mailto:khalidkhan46572@gmail.com?subject=StratScope%20API%20Access%20Request&body=" + encodeURIComponent(body);
+        });
+        </script>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+        <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+        <div class="footer-social">
+          <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+          <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Product</h4>
+        <a href="datasets.html">Execution datasets</a>
+        <a href="benchmarks.html">Benchmarks</a>
+        <a href="research.html">Research reports</a>
+        <a href="developers.html">APIs &amp; SDKs</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Company</h4>
+        <a href="index.html">About</a>
+        <a href="agents.html">Register your agent</a>
+        <a href="mailto:khalidkhan46572@gmail.com">Contact</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Data governance</a>
+      </div>
+    </div>
+    <div class="footer-bottom container">
+      <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+      <span>Execution intelligence for AI agents.</span>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+<script src="js/api.js"></script>
+<script src="js/developers.js"></script>
+</body>
+</html>

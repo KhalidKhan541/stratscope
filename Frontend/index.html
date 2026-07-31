@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StratScope AI — The execution intelligence platform for AI agents</title>
+  <meta name="description" content="The execution intelligence platform for AI agents. Execution datasets, benchmarks and analytics built from real-world agent executions." />
+  <link rel="icon" type="image/png" href="StratScope-logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="active">Home</a>
+      <a href="datasets.html">Datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="agents.html">Agents</a>
+      <a href="research.html">Research</a>
+      <a href="developers.html">Developers</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-sm">Get started</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">Execution intelligence for AI agents</p>
+      <h1 class="hero-title">The execution intelligence platform for AI agents.</h1>
+      <p class="hero-sub">StratScope captures what AI agents actually do in the real world — execution traces, tool calls, decision paths, failures and recoveries — and turns them into the datasets, benchmarks and analytics the entire industry runs on.</p>
+      <div class="hero-actions">
+        <a href="datasets.html" class="btn btn-primary btn-lg">Explore datasets</a>
+        <a href="agents.html" class="btn btn-secondary btn-lg">Register your agent</a>
+      </div>
+      <p class="hero-note">Free tier for participating agents · SDKs for Python, TypeScript and REST</p>
+      <div class="hero-panel">
+        <div class="hero-panel-header">
+          <span class="hdot"></span><span class="hdot"></span><span class="hdot"></span>
+          <span class="hero-panel-title">sample_trace.json</span>
+        </div>
+        <pre class="code-block">{
+  "agent": "support-bot-v3",
+  "task": "process_refund",
+  "trace": [
+    { "step": 1, "tool": "search_tickets",  "status": "ok",    "latency_ms": 312 },
+    { "step": 2, "tool": "verify_auth",     "status": "ok",    "latency_ms": 89  },
+    { "step": 3, "tool": "issue_refund",    "status": "retry", "latency_ms": 1204 },
+    { "step": 4, "tool": "escalate_human",  "status": "ok",    "latency_ms": 58  }
+  ],
+  "outcome": "success",
+  "cost_usd": 0.0042
+}</pre>
+      </div>
+    </div>
+  </section>
+  <section class="strip">
+    <div class="container">
+      <p>Trusted by founding teams at</p>
+      <div class="strip-names">
+        <span>Northbeam</span><span>Vantage</span><span>Axiom Labs</span><span>Craft</span><span>Meridian</span><span>Orbital</span>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="stat-grid reveal">
+        <div class="stat">
+          <div class="stat-number" data-target="120" data-suffix="K+">0</div>
+          <div class="stat-label">Registered agents</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" data-target="10" data-suffix="M+">0</div>
+          <div class="stat-label">Execution traces captured</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" data-target="99.2" data-decimals="1" data-suffix="%">0</div>
+          <div class="stat-label">Trace fidelity</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" data-target="40" data-suffix="+">0</div>
+          <div class="stat-label">Enterprise partners</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <h2 class="section-title">We capture what agents actually do.</h2>
+        <p class="section-sub">Not static instructions — real operational behavior, collected with explicit opt-in and anonymized.</p>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="card">
+          <span class="tag">Traces</span>
+          <h3 class="card-title">Execution traces</h3>
+          <p class="card-text">Every step an agent takes, in order: state transitions, tool calls, and the context around each decision.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Tool use</span>
+          <h3 class="card-title">Tool call sequences</h3>
+          <p class="card-text">Which tools are invoked, in what order, with what arguments — and which sequences actually work.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Reasoning</span>
+          <h3 class="card-title">Decision paths</h3>
+          <p class="card-text">The branches agents explore, the alternatives considered, and the path taken to a result.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Failure data</span>
+          <h3 class="card-title">Errors &amp; failures</h3>
+          <p class="card-text">What breaks, when, and why: the rare failure corpus that is nearly impossible to collect in-house.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Recovery</span>
+          <h3 class="card-title">Recovery strategies</h3>
+          <p class="card-text">How agents retry, fall back and recover — and where they still need a human correction.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Corrections</span>
+          <h3 class="card-title">Human corrections</h3>
+          <p class="card-text">The interventions people make, paired with the mistakes that triggered them.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <h2 class="section-title">A data network that compounds.</h2>
+        <p class="section-sub">Every participating agent makes the platform more valuable for everyone else.</p>
+      </div>
+      <div class="flywheel reveal">
+        <div class="flywheel-step">
+          <span class="step-num">1</span>
+          <div>
+            <h3 class="step-title">Register your agent</h3>
+            <p class="step-text">Developers and companies register their AI agents with StratScope.</p>
+          </div>
+        </div>
+        <div class="flywheel-step">
+          <span class="step-num">2</span>
+          <div>
+            <h3 class="step-title">Opt in to share</h3>
+            <p class="step-text">Agents contribute anonymized execution data with explicit, granular consent.</p>
+          </div>
+        </div>
+        <div class="flywheel-step">
+          <span class="step-num">3</span>
+          <div>
+            <h3 class="step-title">Normalize &amp; structure</h3>
+            <p class="step-text">StratScope collects and normalizes execution traces into a consistent corpus.</p>
+          </div>
+        </div>
+        <div class="flywheel-step">
+          <span class="step-num">4</span>
+          <div>
+            <h3 class="step-title">Generate products</h3>
+            <p class="step-text">We produce proprietary execution datasets, benchmarks and analytics from real runs.</p>
+          </div>
+        </div>
+        <div class="flywheel-step">
+          <span class="step-num">5</span>
+          <div>
+            <h3 class="step-title">AI companies buy</h3>
+            <p class="step-text">Enterprises license datasets, benchmarks, research reports and APIs.</p>
+          </div>
+        </div>
+        <div class="flywheel-step">
+          <span class="step-num">6</span>
+          <div>
+            <h3 class="step-title">Attract more agents</h3>
+            <p class="step-text">Better data brings better customers, which brings more participating agents — and richer data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <h2 class="section-title">Built on real executions.</h2>
+      </div>
+      <div class="grid-2 reveal">
+        <div class="card">
+          <span class="tag">Proprietary corpus</span>
+          <h3 class="card-title">Execution datasets</h3>
+          <p class="card-text">Datasets generated from real agent interactions: traces, tool sequences, multi-agent conversations, failure corpora and execution metrics. Static data cannot replicate what we collect.</p>
+          <a href="datasets.html" class="btn btn-primary">Browse datasets</a>
+        </div>
+        <div class="card">
+          <span class="tag">Evaluation</span>
+          <h3 class="card-title">Benchmarks &amp; evaluations</h3>
+          <p class="card-text">Performance evaluations built from execution traces — success rate, latency, cost and recovery quality — measured on real operational behavior, not synthetic tasks.</p>
+          <a href="benchmarks.html" class="btn btn-primary">See the benchmarks</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="cta-title">Where will your agents go next?</h2>
+      <p class="cta-sub">Join the execution intelligence network. Register your agent, contribute anonymized traces, and get datasets, benchmarks and analytics built from real-world execution.</p>
+      <div class="hero-actions">
+        <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-lg">Email us</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">Connect on LinkedIn</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+      <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+      <div class="footer-social">
+        <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Product</h4>
+      <a href="datasets.html">Execution datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="research.html">Research reports</a>
+      <a href="developers.html">APIs &amp; SDKs</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Company</h4>
+      <a href="index.html">About</a>
+      <a href="agents.html">Register your agent</a>
+      <a href="mailto:khalidkhan46572@gmail.com">Contact</a>
+      <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Legal</h4>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Data governance</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+    <span>Execution intelligence for AI agents.</span>
+  </div>
+</footer>
+<script src="js/api.js"></script>
+<script src="js/home.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

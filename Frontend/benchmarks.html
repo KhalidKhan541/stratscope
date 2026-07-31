@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmarks — StratScope AI</title>
+  <meta name="description" content="Evaluation benchmarks derived from real-world AI agent executions: success rate, latency, cost efficiency and recovery quality." />
+  <link rel="icon" href="StratScope-logo.png" type="image/png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="navbar" id="navbar">
+    <div class="nav-inner container">
+      <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="datasets.html">Datasets</a>
+        <a href="benchmarks.html" class="active">Benchmarks</a>
+        <a href="agents.html">Agents</a>
+        <a href="research.html">Research</a>
+        <a href="developers.html">Developers</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-sm">Get started</a>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="container">
+        <p class="eyebrow">Benchmarks</p>
+        <h1>Benchmarks that come from real runs.</h1>
+        <p>Most benchmarks are written by hand from imagined tasks. Ours are derived from execution traces — millions of real agent runs — so the evaluations measure what production work actually looks like.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">What we measure.</h2>
+          <p class="section-sub">Every benchmark is built from normalized, anonymized execution traces with published methodology.</p>
+        </div>
+        <div class="grid-3 reveal">
+          <div class="card">
+            <span class="tag">Metric</span>
+            <h3 class="card-title">Success rate</h3>
+            <p class="card-text">Task completion measured on real production workloads with defined outcome criteria.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Metric</span>
+            <h3 class="card-title">Latency</h3>
+            <p class="card-text">Step-level and end-to-end timing distributions across tool calls, reasoning and recovery.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Metric</span>
+            <h3 class="card-title">Cost efficiency</h3>
+            <p class="card-text">Cost per successful task, normalized across models, tools and configurations.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Metric</span>
+            <h3 class="card-title">Recovery quality</h3>
+            <p class="card-text">How quickly and how well agents recover from errors, retries and partial failures.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Metric</span>
+            <h3 class="card-title">Tool-selection accuracy</h3>
+            <p class="card-text">Whether the right tool is chosen at the right moment, judged against human corrections.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Metric</span>
+            <h3 class="card-title">Multi-agent coordination</h3>
+            <p class="card-text">Handoffs, contention and delegation quality across multi-agent systems.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">The benchmark suite.</h2>
+        </div>
+        <div class="table-wrap reveal">
+          <table class="data-table">
+            <thead>
+              <tr><th>Benchmark</th><th>Domain</th><th>Primary metric</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>AgentBench-Real</td><td>General agent work</td><td>Success rate</td><td>Stable</td></tr>
+              <tr><td>ToolTrail</td><td>Tool orchestration</td><td>Tool-selection accuracy</td><td>Stable</td></tr>
+              <tr><td>FailureForge</td><td>Error &amp; edge cases</td><td>Recovery quality</td><td>Stable</td></tr>
+              <tr><td>RecoveryIQ</td><td>Retry &amp; fallback</td><td>Recovery quality</td><td>Beta</td></tr>
+              <tr><td>CostCompass</td><td>Cost optimization</td><td>Cost per task</td><td>Beta</td></tr>
+              <tr><td>SyncBench</td><td>Multi-agent systems</td><td>Coordination score</td><td>Beta</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">How benchmarks are built.</h2>
+          <p class="section-sub">Full methodology, published with every release.</p>
+        </div>
+        <div class="grid-2 reveal">
+          <div class="timeline">
+            <div class="step">
+              <h3>Collect real executions</h3>
+              <p>Traces flow in from registered agents across thousands of production workloads.</p>
+            </div>
+            <div class="step">
+              <h3>Normalize &amp; anonymize</h3>
+              <p>Raw traces are structured into a canonical schema with personal data stripped.</p>
+            </div>
+            <div class="step">
+              <h3>Define tasks &amp; metrics</h3>
+              <p>Tasks are extracted from real runs; metrics are defined against observable outcomes.</p>
+            </div>
+            <div class="step">
+              <h3>Publish with methodology</h3>
+              <p>Benchmarks ship with full methodology, seed documentation and version history.</p>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <span class="tag">Sample</span>
+              <h3 class="card-title">What a scored run looks like</h3>
+              <pre class="code-block">{
+  "benchmark": "ToolTrail v2",
+  "run_id": "9f3a1c",
+  "task": "invoice_reconciliation",
+  "score": 0.87,
+  "latency_p95_ms": 4102,
+  "cost_usd": 0.021,
+  "recovery": "2 retries, 0 escalations",
+  "verdict": "pass"
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <h2 class="cta-title">Measure agents on real work.</h2>
+        <p class="cta-sub">Run your agents against benchmarks derived from millions of anonymized real-world executions — and get evaluations on your own stack.</p>
+        <div class="hero-actions">
+          <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-lg">Request evaluations</a>
+          <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">Connect on LinkedIn</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+        <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+        <div class="footer-social">
+          <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+          <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Product</h4>
+        <a href="datasets.html">Execution datasets</a>
+        <a href="benchmarks.html">Benchmarks</a>
+        <a href="research.html">Research reports</a>
+        <a href="developers.html">APIs &amp; SDKs</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Company</h4>
+        <a href="index.html">About</a>
+        <a href="agents.html">Register your agent</a>
+        <a href="mailto:khalidkhan46572@gmail.com">Contact</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Data governance</a>
+      </div>
+    </div>
+    <div class="footer-bottom container">
+      <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+      <span>Execution intelligence for AI agents.</span>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/benchmarks.js"></script>
+</body>
+</html>

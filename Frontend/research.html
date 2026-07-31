@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research — StratScope AI</title>
+  <meta name="description" content="Research insights from millions of anonymized real-world AI agent executions." />
+  <link rel="icon" type="image/png" href="StratScope-logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="datasets.html">Datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="agents.html">Agents</a>
+      <a href="research.html" class="active">Research</a>
+      <a href="developers.html">Developers</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-sm">Get started</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">Research</p>
+      <h1>Insights from millions of real executions.</h1>
+      <p>We study how agents actually behave in production — across models, tools and workloads — and publish what we learn from the anonymized execution corpus.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <h2 class="section-title">Featured reports.</h2>
+        <p class="section-sub">Each report is backed by the execution corpus and published with full methodology.</p>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="card">
+          <span class="tag">2026</span>
+          <h3 class="card-title">The State of Agent Execution</h3>
+          <p class="card-text">How success rates, latencies and costs vary across models, tools and workloads — from millions of anonymized runs.</p>
+          <a class="btn btn-secondary btn-sm" href="mailto:khalidkhan46572@gmail.com?subject=Report%20request%3A%20State%20of%20Agent%20Execution">Read report</a>
+        </div>
+        <div class="card">
+          <span class="tag">2026</span>
+          <h3 class="card-title">The Failure Divide</h3>
+          <p class="card-text">Why 43% of agent failures are recoverable, where they happen, and what separates teams that recover well from teams that don't.</p>
+          <a class="btn btn-secondary btn-sm" href="mailto:khalidkhan46572@gmail.com?subject=Report%20request%3A%20The%20Failure%20Divide">Read report</a>
+        </div>
+        <div class="card">
+          <span class="tag">2026</span>
+          <h3 class="card-title">The Cost of Wrong Tools</h3>
+          <p class="card-text">How tool-selection errors compound into latency and cost, and the correction patterns that prevent them.</p>
+          <a class="btn btn-secondary btn-sm" href="mailto:khalidkhan46572@gmail.com?subject=Report%20request%3A%20The%20Cost%20of%20Wrong%20Tools">Read report</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <h2 class="section-title">Latest findings from the corpus.</h2>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="card">
+          <span class="tag">Recovery</span>
+          <h3 class="card-title">43%</h3>
+          <p class="card-text">of agent failures are recoverable without human intervention — when agents have access to recovery strategies learned from real executions.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Latency</span>
+          <h3 class="card-title">2.4&times;</h3>
+          <p class="card-text">median latency increase on tasks where the wrong tool was selected at least once. Early tool choice dominates end-to-end performance.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Corrections</span>
+          <h3 class="card-title">6.1&times;</h3>
+          <p class="card-text">better recovery rates for agents trained on human-correction pairs compared with baseline fine-tuning on task data alone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <h2 class="section-title">How we do research.</h2>
+        <p class="section-sub">Reproducible, transparent and grounded in real executions.</p>
+      </div>
+      <div class="grid-2 reveal">
+        <div class="timeline">
+          <div class="step">
+            <h3>Trace collection</h3>
+            <p>Executions flow in from registered agents across production workloads and frameworks.</p>
+          </div>
+          <div class="step">
+            <h3>Anonymization</h3>
+            <p>Personal data, payloads and identifiers are stripped before analysis.</p>
+          </div>
+          <div class="step">
+            <h3>Normalization</h3>
+            <p>Heterogeneous traces become a consistent, queryable schema.</p>
+          </div>
+          <div class="step">
+            <h3>Analysis</h3>
+            <p>Patterns, failures and metrics are studied across models, tools and workloads.</p>
+          </div>
+          <div class="step">
+            <h3>Publication</h3>
+            <p>Findings, methodology and supporting data ship together, versioned and reproducible.</p>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <span class="tag">Ethics</span>
+            <h3 class="card-title">Responsible research</h3>
+            <p class="card-text">Our research follows three commitments:</p>
+            <ul class="checklist">
+              <li>Only anonymized, consented data is analyzed.</li>
+              <li>Findings are published with full methodology.</li>
+              <li>No individual contributor is ever identified.</li>
+            </ul>
+            <p class="card-text">We publish negative results too — the corpus is most honest when nothing is hidden.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="cta-title">Stay ahead of the data.</h2>
+      <p class="cta-sub">Get our research reports and the underlying execution data. Follow StratScope for new findings from the agent execution network.</p>
+      <div class="hero-actions">
+        <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-lg">Get the reports</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">Connect on LinkedIn</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+      <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+      <div class="footer-social">
+        <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Product</h4>
+      <a href="datasets.html">Execution datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="research.html">Research reports</a>
+      <a href="developers.html">APIs &amp; SDKs</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Company</h4>
+      <a href="index.html">About</a>
+      <a href="agents.html">Register your agent</a>
+      <a href="mailto:khalidkhan46572@gmail.com">Contact</a>
+      <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Legal</h4>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Data governance</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+    <span>Execution intelligence for AI agents.</span>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script src="js/api.js"></script>
+<script src="js/research.js"></script>
+</body>
+</html>

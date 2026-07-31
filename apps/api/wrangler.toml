@@ -1,0 +1,18 @@
+name = "stratscope-api"
+main = "src/index.ts"
+compatibility_date = "2024-09-25"
+compatibility_flags = ["nodejs_compat"]
+
+# Production - minimal config without resource bindings
+# Resources will be bound after creation via `wrangler resource bind`
+[env.production]
+name = "stratscope-api"
+vars = { ENVIRONMENT = "production" }
+
+# D1 database (binding name: DB)
+# NOTE: Reuses the empty `agent-os-gateway` D1 database — account D1 limit (10) reached,
+# and it had zero tables. Do not delete.
+[[d1_databases]]
+binding = "DB"
+database_name = "agent-os-gateway"
+database_id = "30a87a96-fbc0-4ec9-8378-95c1bc022187"

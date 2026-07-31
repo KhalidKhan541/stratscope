@@ -1,0 +1,70 @@
+name: SEEA - Software Engineering Execution Agent
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      max_iterations:
+        description: 'Max iterations to run'
+        required: false
+        default: '5'
+      task_type:
+        description: 'Task type filter (optional)'
+        required: false
+        default: ''
+
+jobs:
+  seea:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Run SEEA Agent
+        env:
+          STRATSCOPE_API_URL: ${{ secrets.STRATSCOPE_API_URL }}
+          STRATSCOPE_API_KEY: ${{ secrets.STRATSCOPE_API_KEY }}
+          STRATSCOPE_PROJECT_ID: ${{ secrets.STRATSCOPE_PROJECT_ID }}
+          STRATSCOPE_ORG_ID: ${{ secrets.STRATSCOPE_ORG_ID }}
+          STRATSCOPE_AGENT_ID: ${{ secrets.STRATSCOPE_AGENT_ID }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          SEE_WORKSPACE: ${{ github.workspace }}/workspace
+          MAX_ITERATIONS: ${{ github.event.inputs.max_iterations || '5' }}
+          TASK_TYPE: ${{ github.event.inputs.task_type || '' }}
+        run: pnpm --filter @stratscope/seea start
+
+      - name: Upload dataset artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seea-dataset-${{ github.run_number }}
+          path: workspace/datasets/
+          retention-days: 30
+
+      - name: Upload execution log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seea-log-${{ github.run_number }}
+          path: workspace/logs/
+          retention-days: 7
