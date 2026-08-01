@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 import os
 import re
-from typing import Any, Dict, List, Optional, TypedDict, Tuple
+from typing import Any, Dict, List, Optional, Set, TypedDict, Tuple
 
 from . import tools as tools_mod
 from .llm import LLMProvider
@@ -62,8 +62,8 @@ GRAPH_BACKEND: str = "unknown"
 MAX_EDIT_ITERATIONS = 10
 
 MAX_TOOL_RESULT_CHARS = 1200
+MAX_LISTING_CHARS = 3000
 MAX_EDIT_HISTORY_MESSAGES = 6
-MAX_REPEATED_TOOL_CALLS = 3
 
 SYSTEM_PROMPT = (
     "You are the StratScope bugfixer, an autonomous agent that fixes bugs in a "
@@ -207,12 +207,13 @@ def _dispatch(tool: str, args: dict, workdir: str) -> str:
         return f"ERROR: tool '{tool}' failed: {exc}"
 
 
-def _truncate_result(result: str) -> str:
-    if len(result) <= MAX_TOOL_RESULT_CHARS:
+def _truncate_result(result: str, tool: str) -> str:
+    limit = MAX_LISTING_CHARS if tool == "list_files" else MAX_TOOL_RESULT_CHARS
+    if len(result) <= limit:
         return result
     return (
-        result[:MAX_TOOL_RESULT_CHARS]
-        + "\n...[truncated; use a more specific path to see the rest]"
+        result[:limit]
+        + "\n...[truncated; use read_file on a specific file to see its contents]"
     )
 
 
@@ -233,8 +234,8 @@ def edit(state: dict) -> dict:
     ] + history
 
     iterations = 0
-    last_call: Optional[Tuple[str, str]] = None
-    repeat_count = 0
+    seen_calls: Set[Tuple[str, str]] = set()
+    list_files_calls = 0
     for _ in range(MAX_EDIT_ITERATIONS):
         iterations += 1
         reply = provider.chat(messages).strip()
@@ -255,34 +256,36 @@ def edit(state: dict) -> dict:
             continue
         tool, args = call
         call_key = (tool, str(args))
-        if call_key == last_call:
-            repeat_count += 1
-        else:
-            last_call = call_key
-            repeat_count = 1
         execution.event("agent.tool_call", {"tool": tool, "args_summary": str(args)[:500]})
-        result = _dispatch(tool, args, state["workdir"])
-        execution.event("agent.tool_result", {"tool": tool, "result_summary": str(result)[:500]})
-        if tool in _MUTATING_TOOLS:
-            state["changes"] = state.get("changes", []) + [
-                {"tool": tool, "args_summary": str(args)[:500]}
-            ]
-        if repeat_count >= MAX_REPEATED_TOOL_CALLS:
-            messages = messages + [
-                {
-                    "role": "tool",
-                    "content": (
-                        f"ERROR: you called {tool} {repeat_count} times with identical "
-                        "arguments and made no progress. Stop repeating the same call. "
-                        "Read the file you need to change with read_file, then write the "
-                        "fix with write_file, then run tests with run_command, then reply DONE."
-                    ),
-                }
-            ]
+        reject: Optional[str] = None
+        if call_key in seen_calls:
+            reject = (
+                f"ERROR: you already called {tool} with these exact arguments and it did "
+                "not complete the fix. Do not repeat it. Choose a different action: "
+                "read_file the file you need, write_file the fix, or run_command to test."
+            )
+        elif tool == "list_files" and list_files_calls >= 2:
+            reject = (
+                "ERROR: you already explored the repository with list_files twice. "
+                "Repeated listing makes no progress. The issue points at the files you "
+                "need: read them with read_file, apply the fix with write_file, verify "
+                "with run_command, then reply DONE."
+            )
+        if reject is not None:
+            result = reject
         else:
-            messages = messages + [
-                {"role": "tool", "content": _truncate_result(result)}
-            ]
+            seen_calls.add(call_key)
+            if tool == "list_files":
+                list_files_calls += 1
+            result = _dispatch(tool, args, state["workdir"])
+            if tool in _MUTATING_TOOLS:
+                state["changes"] = state.get("changes", []) + [
+                    {"tool": tool, "args_summary": str(args)[:500]}
+                ]
+        execution.event("agent.tool_result", {"tool": tool, "result_summary": str(result)[:500]})
+        messages = messages + [
+            {"role": "tool", "content": _truncate_result(result, tool)}
+        ]
         messages = messages[:2] + messages[2:][-MAX_EDIT_HISTORY_MESSAGES:]
 
     state["messages"] = messages[2:]

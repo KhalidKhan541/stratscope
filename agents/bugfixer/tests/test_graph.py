@@ -125,3 +125,39 @@ def test_graph_context_required_raises(tmp_path):
     with pytest.raises(RuntimeError):
         graph.run_graph(_initial_state(tmp_path))
     graph.set_context(execution=None, provider=None)
+
+
+def test_graph_rejects_repeated_list_files_and_duplicate_calls(tmp_path):
+    init_git_repo(tmp_path)
+    fake = FakeExecution()
+    llm = CannedLLM(
+        [
+            "analysis",
+            "plan",
+            _tool_call("list_files", {}),
+            _tool_call("list_files", {"path": "sub"}),
+            _tool_call("list_files", {}),
+            _tool_call("list_files", {"path": "src"}),
+            _tool_call("read_file", {"path": "bug.py"}),
+            _tool_call("write_file", {"path": "bug.py", "content": "x = 1\n"}),
+            "DONE",
+            "report",
+        ]
+    )
+    graph.set_context(execution=fake, provider=llm)
+
+    result = graph.run_graph(_initial_state(tmp_path))
+
+    assert result["tests_passed"] is True
+    assert len(result["changes"]) == 1
+    list_results = [
+        e
+        for e in fake.events
+        if e["type"] == "agent.tool_result" and e["payload"]["tool"] == "list_files"
+    ]
+    executed = [e for e in list_results if not e["payload"]["result_summary"].startswith("ERROR")]
+    rejected = [e for e in list_results if e["payload"]["result_summary"].startswith("ERROR")]
+    assert len(executed) == 2
+    assert len(rejected) == 2
+    assert "Do not repeat it" in rejected[0]["payload"]["result_summary"]
+    assert "already explored the repository" in rejected[1]["payload"]["result_summary"]
