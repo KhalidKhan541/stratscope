@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -9,6 +10,26 @@ import pytest
 from seed import TEMPLATES, build_bug_md, count_failing_tests, write_base_project
 
 SEED_PY = Path(__file__).resolve().parent.parent / "seed.py"
+
+
+def pytest_result(workdir: Path) -> tuple[int, str]:
+    proc = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "--tb=no", "-p", "no:cacheprovider"],
+        cwd=str(workdir),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=120,
+    )
+    output = proc.stdout + proc.stderr
+    failures = re.search(r"(\d+) failed", output)
+    errors = re.search(r"(\d+) error", output)
+    return (
+        (int(failures.group(1)) if failures else 0)
+        + (int(errors.group(1)) if errors else 0),
+        output,
+    )
 
 
 def file_hashes(workdir: Path) -> dict:
@@ -28,7 +49,10 @@ def test_every_template_fails_and_reverts(tmp_path):
         mutated = tpl["apply"](original)
         assert mutated != original, f"template {tpl['name']} produced no change"
         module_path.write_text(mutated, encoding="utf-8")
-        assert count_failing_tests(tmp_path) >= 1, f"template {tpl['name']} fails no test"
+        failing, output = pytest_result(tmp_path)
+        assert failing >= 1, (
+            f"template {tpl['name']} fails no test\n--- inner pytest output ---\n{output}"
+        )
         reverted = tpl["revert"](mutated)
         assert reverted == original, f"template {tpl['name']} does not revert cleanly"
         module_path.write_text(reverted, encoding="utf-8")

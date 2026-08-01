@@ -31,7 +31,9 @@ def _abspath(workdir: str, rel: str) -> str:
     root = os.path.abspath(workdir)
     if not os.path.isdir(root):
         raise FileNotFoundError(f"working directory does not exist: {root}")
-    target = os.path.abspath(os.path.join(root, rel))
+    # Treat both path separators as separators so Windows-style paths from the
+    # LLM ("..\\escape.txt") are rejected on POSIX hosts too.
+    target = os.path.abspath(os.path.join(root, rel.replace("\\", "/")))
     if os.path.commonpath([root, target]) != root:
         raise ValueError(f"path escapes working directory: {rel}")
     return target

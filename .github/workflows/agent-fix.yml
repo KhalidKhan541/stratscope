@@ -22,14 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     env:
-      GITHUB_TOKEN: ${{ secrets.STRATSCOPE_GITHUB_TOKEN }}
-      REPOS_JSON: ${{ secrets.REPOS_JSON }}
+      GITHUB_TOKEN: ${{ github.token }}
+      REPOS_JSON: '[{"owner":"KhalidKhan541","repo":"stratscope"}]'
       STRATSCOPE_API_KEY: ${{ secrets.STRATSCOPE_API_KEY }}
-      STRATSCOPE_BASE_URL: ${{ secrets.STRATSCOPE_BASE_URL }}
+      STRATSCOPE_BASE_URL: ${{ secrets.STRATSCOPE_API_URL || 'https://stratscope-api.khalidkhan.workers.dev' }}
       STRATSCOPE_PROJECT_ID: ${{ secrets.STRATSCOPE_PROJECT_ID }}
-      STRATSCOPE_AGENT_ID: ${{ secrets.STRATSCOPE_AGENT_ID }}
+      STRATSCOPE_AGENT_ID: bugfixer-swe
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      LLM_MODEL: ${{ vars.LLM_MODEL }}
+      LLM_MODEL: ${{ vars.LLM_MODEL || 'qwen3-coder-480b' }}
       DRY_RUN: ${{ github.event.inputs.dry_run == 'true' || 'false' }}
     steps:
       - name: Checkout repo
