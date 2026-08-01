@@ -63,6 +63,7 @@ MAX_EDIT_ITERATIONS = 10
 
 MAX_TOOL_RESULT_CHARS = 1200
 MAX_EDIT_HISTORY_MESSAGES = 6
+MAX_REPEATED_TOOL_CALLS = 3
 
 SYSTEM_PROMPT = (
     "You are the StratScope bugfixer, an autonomous agent that fixes bugs in a "
@@ -79,7 +80,8 @@ SYSTEM_PROMPT = (
     '- git_commit   {"message": "commit message"}\n\n'
     "All paths are relative to the repository root. After each tool call you "
     "will receive the tool result. Inspect the code, apply the fix, then reply "
-    "exactly DONE."
+    "exactly DONE. Call list_files at most once; then use read_file on the "
+    "specific files you need. Prefer minimal changes to the fewest files."
 )
 
 
@@ -205,6 +207,15 @@ def _dispatch(tool: str, args: dict, workdir: str) -> str:
         return f"ERROR: tool '{tool}' failed: {exc}"
 
 
+def _truncate_result(result: str) -> str:
+    if len(result) <= MAX_TOOL_RESULT_CHARS:
+        return result
+    return (
+        result[:MAX_TOOL_RESULT_CHARS]
+        + "\n...[truncated; use a more specific path to see the rest]"
+    )
+
+
 def edit(state: dict) -> dict:
     """LLM-driven tool loop: apply the fix, at most MAX_EDIT_ITERATIONS calls."""
     execution = _execution()
@@ -222,6 +233,8 @@ def edit(state: dict) -> dict:
     ] + history
 
     iterations = 0
+    last_call: Optional[Tuple[str, str]] = None
+    repeat_count = 0
     for _ in range(MAX_EDIT_ITERATIONS):
         iterations += 1
         reply = provider.chat(messages).strip()
@@ -241,6 +254,12 @@ def edit(state: dict) -> dict:
             ]
             continue
         tool, args = call
+        call_key = (tool, str(args))
+        if call_key == last_call:
+            repeat_count += 1
+        else:
+            last_call = call_key
+            repeat_count = 1
         execution.event("agent.tool_call", {"tool": tool, "args_summary": str(args)[:500]})
         result = _dispatch(tool, args, state["workdir"])
         execution.event("agent.tool_result", {"tool": tool, "result_summary": str(result)[:500]})
@@ -248,9 +267,22 @@ def edit(state: dict) -> dict:
             state["changes"] = state.get("changes", []) + [
                 {"tool": tool, "args_summary": str(args)[:500]}
             ]
-        messages = messages + [
-            {"role": "tool", "content": result[:MAX_TOOL_RESULT_CHARS]}
-        ]
+        if repeat_count >= MAX_REPEATED_TOOL_CALLS:
+            messages = messages + [
+                {
+                    "role": "tool",
+                    "content": (
+                        f"ERROR: you called {tool} {repeat_count} times with identical "
+                        "arguments and made no progress. Stop repeating the same call. "
+                        "Read the file you need to change with read_file, then write the "
+                        "fix with write_file, then run tests with run_command, then reply DONE."
+                    ),
+                }
+            ]
+        else:
+            messages = messages + [
+                {"role": "tool", "content": _truncate_result(result)}
+            ]
         messages = messages[:2] + messages[2:][-MAX_EDIT_HISTORY_MESSAGES:]
 
     state["messages"] = messages[2:]
