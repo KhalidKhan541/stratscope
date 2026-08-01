@@ -22,6 +22,7 @@ import os
 import time
 import urllib.error
 import urllib.request
+import uuid
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
 __version__ = "0.1.0"
@@ -137,6 +138,7 @@ class StratScopeExecution:
 
     def event(self, event_type: str, payload: dict, metadata: Optional[dict] = None) -> None:
         event: Dict[str, Any] = {
+            "event_id": uuid.uuid4().hex,
             "event_type": event_type,
             "execution_id": self.id,
             "payload": payload,

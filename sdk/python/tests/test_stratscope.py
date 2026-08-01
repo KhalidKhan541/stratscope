@@ -123,8 +123,13 @@ def test_events_buffer_and_flush_at_20():
         assert request.get_method() == "POST"
         batch = body_of(request)["batch"]
         assert len(batch) == 20
-        assert batch[0] == {"event_type": "evt_0", "execution_id": "exec_1", "payload": {"n": 0}}
-        assert batch[19] == {
+        first = dict(batch[0])
+        first_id = first.pop("event_id")
+        assert len(first_id) == 32
+        assert first == {"event_type": "evt_0", "execution_id": "exec_1", "payload": {"n": 0}}
+        last = dict(batch[19])
+        last.pop("event_id")
+        assert last == {
             "event_type": "evt_19",
             "execution_id": "exec_1",
             "payload": {"n": 19},
@@ -199,6 +204,25 @@ def test_finish_omits_none_stats():
     patch_request = urlopen.call_args.args[0]
     assert patch_request.get_method() == "PATCH"
     assert body_of(patch_request) == {"status": "failed", "error": "boom"}
+
+
+def test_retried_flush_resends_identical_event_ids():
+    with mock.patch("urllib.request.urlopen", return_value=fake_start_response()) as urlopen:
+        execution = start(api_key="k", project_id="p", agent_id="a")
+        urlopen.reset_mock()
+        urlopen.side_effect = [
+            urllib.error.URLError("timeout"),
+            FakeResponse(201, {"success": True, "data": {"inserted": 20}}),
+        ]
+        with mock.patch("time.sleep"):
+            for i in range(20):
+                execution.event(f"e{i}", {})
+
+    assert urlopen.call_count == 2
+    first_batch = body_of(urlopen.call_args_list[0].args[0])["batch"]
+    second_batch = body_of(urlopen.call_args_list[1].args[0])["batch"]
+    assert all(e["event_id"] for e in first_batch)
+    assert [e["event_id"] for e in first_batch] == [e["event_id"] for e in second_batch]
 
 
 def test_network_failure_on_flush_does_not_raise_and_warns(caplog):

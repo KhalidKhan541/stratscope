@@ -120,6 +120,61 @@ function patch(path: string, body: unknown, key?: string) {
   );
 }
 
+function post(path: string, body: unknown, key?: string) {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (key) {
+    headers["Authorization"] = `Bearer ${key}`;
+  }
+  return app.request(
+    `/v1/ingest${path}`,
+    { method: "POST", headers, body: JSON.stringify(body) },
+    { DB: db, ENVIRONMENT: "test" }
+  );
+}
+
+describe("POST /v1/ingest/events", () => {
+  it("dedupes retried batches with the same event_id", async () => {
+    const body = {
+      batch: [{ event_id: "evt-1", event_type: "tick", execution_id: "exec-1", payload: { n: 1 } }],
+    };
+    const first = await post("/events", body, KEY_1);
+    const second = await post("/events", body, KEY_1);
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+    const firstBody = (await first.json()) as { data: { inserted: number } };
+    const secondBody = (await second.json()) as { data: { inserted: number } };
+    expect(firstBody.data.inserted).toBe(1);
+    expect(secondBody.data.inserted).toBe(0);
+    const rows = db.tables["events"] ?? [];
+    expect(rows.filter((r) => r["id"] === "evt-1")).toHaveLength(1);
+  });
+
+  it("assigns a random id when event_id is omitted", async () => {
+    const res = await post(
+      "/events",
+      { batch: [{ event_type: "tick", execution_id: "exec-1", payload: {} }] },
+      KEY_1
+    );
+    expect(res.status).toBe(201);
+    const rows = db.tables["events"] ?? [];
+    expect(rows).toHaveLength(1);
+    expect(rows[0]["id"]).toBeTypeOf("string");
+    expect(rows[0]["event_type"]).toBe("tick");
+  });
+
+  it("skips events for executions outside the key's project", async () => {
+    const res = await post(
+      "/events",
+      { batch: [{ event_type: "tick", execution_id: "exec-2", payload: {} }] },
+      KEY_1
+    );
+    expect(res.status).toBe(201);
+    const body = (await res.json()) as { data: { inserted: number } };
+    expect(body.data.inserted).toBe(0);
+  });
+});
+
 describe("PATCH /v1/ingest/executions/:id", () => {
   it("rejects without an API key", async () => {
     const res = await patch("/executions/exec-1", { status: "completed" });

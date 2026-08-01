@@ -240,13 +240,28 @@ export class FakeD1 {
       const rawValues = insertMatch[3].split(",").map((v) => v.trim());
       const table = this.tables[tableName] ?? (this.tables[tableName] = []);
       const row: Row = {};
+      let positional = 0;
       columns.forEach((column, index) => {
         const raw = rawValues[index] ?? "";
-        const placeholder = raw.match(PLACEHOLDER);
-        row[column] = placeholder
-          ? params[Number(placeholder[1]) - 1]
-          : raw.replace(/^'|'$/g, "");
+        const numbered = raw.match(PLACEHOLDER);
+        if (numbered) {
+          row[column] = params[Number(numbered[1]) - 1];
+        } else if (raw === "?") {
+          row[column] = params[positional++];
+        } else {
+          row[column] = raw.replace(/^'|'$/g, "");
+        }
       });
+      const onConflict = sql.match(/ON CONFLICT\(([^)]+)\)\s+DO NOTHING/i);
+      if (onConflict) {
+        const conflictCols = onConflict[1].split(",").map((c) => c.trim());
+        const duplicate = table.some((existing) =>
+          conflictCols.every((col) => existing[col] === row[col])
+        );
+        if (duplicate) {
+          return 0;
+        }
+      }
       table.push(row);
       return 1;
     }

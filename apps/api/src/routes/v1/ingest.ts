@@ -22,6 +22,7 @@ const ingestExecutionSchema = z.object({
 });
 
 const ingestEventSchema = z.object({
+  event_id: z.string().min(1).max(64).optional(),
   event_type: z.string().min(1),
   execution_id: z.string().min(1),
   payload: z.record(z.string(), z.unknown()),
@@ -214,11 +215,12 @@ ingest.post(
         ? redactPayload(event.payload, { redactFields: consent.redact_fields, maxPayloadLength: maxLen })
         : event.payload;
 
-      const id = crypto.randomUUID();
+      const id = event.event_id ?? crypto.randomUUID();
 
-      await c.env.DB.prepare(
+      const insert = await c.env.DB.prepare(
         `INSERT INTO events (id, execution_id, event_type, service, payload, metadata, timestamp, schema_version)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO NOTHING`
       )
         .bind(
           id,
@@ -232,7 +234,9 @@ ingest.post(
         )
         .run();
 
-      inserted.push(id);
+      if ((insert.meta.changes ?? 0) > 0) {
+        inserted.push(id);
+      }
     }
 
     return c.json({ success: true, data: { inserted: inserted.length } }, 201);
