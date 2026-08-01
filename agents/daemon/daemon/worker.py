@@ -65,9 +65,19 @@ def runner_env(cfg: WorkerConfig) -> dict:
     return env
 
 
-def run_bugfixer(cfg: WorkerConfig, repo_dir: Path) -> subprocess.CompletedProcess:
+def run_bugfixer(
+    cfg: WorkerConfig, repo_dir: Path, title: str, body: str
+) -> subprocess.CompletedProcess:
+    cmd = cfg.bugfixer_cmd + [
+        "--workdir",
+        str(repo_dir),
+        "--title",
+        title,
+        "--body",
+        body,
+    ]
     return subprocess.run(
-        cfg.bugfixer_cmd,
+        cmd,
         capture_output=True,
         text=True,
         cwd=str(repo_dir),
@@ -125,7 +135,12 @@ def process_issue(cfg: WorkerConfig, owner: str, repo: str, issue: dict) -> dict
         return result
 
     try:
-        proc = run_bugfixer(cfg, repo_dir)
+        proc = run_bugfixer(
+            cfg,
+            repo_dir,
+            str(issue.get("title") or ""),
+            str(issue.get("body") or ""),
+        )
     except Exception as exc:
         result["status"] = "runner_error"
         result["error"] = f"{type(exc).__name__}: {exc}"

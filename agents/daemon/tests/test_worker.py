@@ -133,6 +133,40 @@ def test_worker_unparseable_output_is_failure(tmp_path, monkeypatch):
     run_bugfixer.assert_called_once()
 
 
+def test_worker_passes_issue_title_and_body_to_runner(tmp_path, monkeypatch):
+    cfg = make_config(tmp_path)
+    captured = {}
+
+    def spy_runner(cfg, repo_dir, title, body):
+        captured["title"] = title
+        captured["body"] = body
+        return mock.Mock(returncode=0, stdout='{"execution_id": "e-1", "status": "completed"}\n')
+
+    with mock.patch.object(worker, "ensure_repo", return_value=tmp_path), mock.patch.object(
+        worker, "run_bugfixer", side_effect=spy_runner
+    ), mock.patch.object(worker.poller, "mark_processed"):
+        issue = make_issue(number=9)
+        issue["body"] = "repro steps here"
+        worker.process_issue(cfg, "owner", "repo", issue)
+    assert captured["title"] == "a bug"
+    assert captured["body"] == "repro steps here"
+
+
+def test_worker_missing_body_defaults_to_empty_string(tmp_path, monkeypatch):
+    cfg = make_config(tmp_path)
+    captured = {}
+
+    def spy_runner(cfg, repo_dir, title, body):
+        captured["body"] = body
+        return mock.Mock(returncode=0, stdout='{"execution_id": "e-1", "status": "completed"}\n')
+
+    with mock.patch.object(worker, "ensure_repo", return_value=tmp_path), mock.patch.object(
+        worker, "run_bugfixer", side_effect=spy_runner
+    ), mock.patch.object(worker.poller, "mark_processed"):
+        worker.process_issue(cfg, "owner", "repo", make_issue())
+    assert captured["body"] == ""
+
+
 def test_parse_runner_output_picks_json_line_from_noise():
     raw = 'some log line\nnot json\n{"execution_id": "e-1", "status": "completed"}\n'
     out = worker.parse_runner_output(raw)
