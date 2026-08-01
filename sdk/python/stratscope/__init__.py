@@ -71,6 +71,7 @@ def _request(
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
+        "User-Agent": f"stratscope-python/{__version__}",
         "X-StratScope-SDK": _SDK_HEADER,
     }
     request = urllib.request.Request(

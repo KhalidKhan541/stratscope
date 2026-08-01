@@ -65,6 +65,7 @@ def test_start_sends_expected_request():
     headers = {key.lower(): value for key, value in request.headers.items()}
     assert headers["authorization"] == "Bearer test-key"
     assert headers["content-type"] == "application/json"
+    assert headers["user-agent"] == "stratscope-python/0.1.0"
     assert headers["x-stratscope-sdk"] == "python-0.1.0"
     assert body_of(request) == {
         "project_id": "proj_1",
