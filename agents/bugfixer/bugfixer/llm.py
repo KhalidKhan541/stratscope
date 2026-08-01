@@ -10,10 +10,14 @@ subclass and never touch the graph logic.
 from __future__ import annotations
 
 import os
+import time
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 __all__ = ["LLMProvider", "GroqProvider"]
+
+_RATE_LIMIT_RETRIES = 4
+_RATE_LIMIT_BACKOFF_SEC = 15
 
 
 class LLMProvider(ABC):
@@ -45,16 +49,34 @@ class GroqProvider(LLMProvider):
                 "langchain-groq is not installed; run: pip install langchain-groq"
             ) from exc
         self._client: Any = ChatGroq(
-            model=model, api_key=self.api_key, temperature=0, max_tokens=2048
+            model=model, api_key=self.api_key, temperature=0, max_tokens=1024
         )
         self.tokens_in: Optional[int] = None
         self.tokens_out: Optional[int] = None
 
     def chat(self, messages: list[dict[str, str]]) -> str:
         prompt = "\n\n".join(f"{m['role']}: {m['content']}" for m in messages)
-        response = self._client.invoke(prompt)
+        for attempt in range(_RATE_LIMIT_RETRIES):
+            try:
+                response = self._client.invoke(prompt)
+                break
+            except Exception as exc:
+                if _is_retryable_rate_limit(exc) and attempt < _RATE_LIMIT_RETRIES - 1:
+                    time.sleep(_RATE_LIMIT_BACKOFF_SEC * (attempt + 1))
+                    continue
+                raise
         usage = getattr(response, "usage_metadata", None) or {}
         if isinstance(usage, dict):
             self.tokens_in = usage.get("input_tokens") or self.tokens_in
             self.tokens_out = usage.get("output_tokens") or self.tokens_out
         return str(response.content)
+
+
+def _is_retryable_rate_limit(exc: Exception) -> bool:
+    """True for Groq 429 (per-minute rate limit); 413 (request too large)
+    is permanent for the same prompt and would only waste retries."""
+    status = getattr(getattr(exc, "response", None), "status_code", None)
+    if status == 429:
+        return True
+    code = getattr(exc, "code", None)
+    return code == "rate_limit_exceeded"

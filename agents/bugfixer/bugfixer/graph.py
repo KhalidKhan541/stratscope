@@ -61,8 +61,8 @@ GRAPH_BACKEND: str = "unknown"
 
 MAX_EDIT_ITERATIONS = 10
 
-MAX_TOOL_RESULT_CHARS = 3000
-MAX_EDIT_HISTORY_MESSAGES = 8
+MAX_TOOL_RESULT_CHARS = 1200
+MAX_EDIT_HISTORY_MESSAGES = 6
 
 SYSTEM_PROMPT = (
     "You are the StratScope bugfixer, an autonomous agent that fixes bugs in a "
