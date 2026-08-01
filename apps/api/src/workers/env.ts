@@ -12,4 +12,12 @@ export interface Env {
   CLERK_PUBLISHABLE_KEY?: string;
   GROQ_API_KEY?: string;
   STRIPE_SECRET_KEY?: string;
+  BENCHMARK_KEY?: string;
+
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  OAUTH_REDIRECT_URL?: string;
+  APP_URL?: string;
 }

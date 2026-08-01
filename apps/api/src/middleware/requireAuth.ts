@@ -1,16 +1,22 @@
 import type { Context, Next } from "hono";
 import { getAuthContext, type AuthContext } from "./auth.js";
 
-export async function requireAuth(c: Context, next: Next): Promise<void> {
-  if (c.req.path.startsWith("/v1/seea")) {
+export async function requireAuth(c: Context, next: Next): Promise<Response | void> {
+  if (
+    c.req.path.startsWith("/v1/seea") ||
+    c.req.path.startsWith("/v1/ingest") ||
+    c.req.path.startsWith("/v1/access") ||
+    c.req.path.startsWith("/v1/auth") ||
+    c.req.path.startsWith("/v1/me")
+  ) {
     await next();
     return;
   }
 
   const auth = getAuthContext(c);
-  
+
   if (!auth) {
-    c.json(
+    return c.json(
       {
         error: {
           code: "UNAUTHORIZED",
@@ -19,9 +25,8 @@ export async function requireAuth(c: Context, next: Next): Promise<void> {
       },
       401
     );
-    return;
   }
-  
+
   await next();
 }
 

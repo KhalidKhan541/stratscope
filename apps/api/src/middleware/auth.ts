@@ -17,11 +17,11 @@ export interface AuthContext {
   readonly projectId?: string;
 }
 
-export async function authMiddleware(c: Context, next: Next): Promise<void> {
+export async function authMiddleware(c: Context, next: Next): Promise<Response | void> {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader?.startsWith("Bearer ")) {
-    c.json(
+    return c.json(
       {
         error: {
           code: "UNAUTHORIZED",
@@ -30,7 +30,6 @@ export async function authMiddleware(c: Context, next: Next): Promise<void> {
       },
       401
     );
-    return;
   }
 
   const token = authHeader.slice(7);
@@ -39,7 +38,7 @@ export async function authMiddleware(c: Context, next: Next): Promise<void> {
     const payload = await verifyClerkToken(token, c);
 
     if (!payload) {
-      c.json(
+      return c.json(
         {
           error: {
             code: "UNAUTHORIZED",
@@ -48,7 +47,6 @@ export async function authMiddleware(c: Context, next: Next): Promise<void> {
         },
         401
       );
-      return;
     }
 
     const authCtx: AuthContext = {
@@ -71,7 +69,7 @@ export async function authMiddleware(c: Context, next: Next): Promise<void> {
       })
     );
 
-    c.json(
+    return c.json(
       {
         error: {
           code: "INTERNAL_ERROR",

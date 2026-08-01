@@ -16,6 +16,7 @@ import { defaultRateLimit } from "./middleware/rateLimit.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { v1Routes } from "./routes/v1/index.js";
 import { publicRoutes } from "./routes/v1/public.js";
+import { generateBenchmarkReports } from "./jobs/benchmarkReports.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -98,5 +99,67 @@ app.notFound((c) => {
 // ---------------------------------------------------------------------------
 
 app.onError(errorHandler);
+
+// ---------------------------------------------------------------------------
+// Scheduled jobs — Cloudflare Cron Triggers
+// ---------------------------------------------------------------------------
+
+app.post("/__scheduled", async (c) => {
+  const env = c.env as Env;
+  const log = JSON.stringify({
+    level: "info",
+    message: "Running scheduled benchmark report generation",
+    service: "api",
+    timestamp: new Date().toISOString(),
+  });
+  console.log(log);
+
+  try {
+    const reports = await generateBenchmarkReports(env);
+    return c.json({ success: true, reports: reports.length }, 200);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "Benchmark report generation failed",
+        service: "api",
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+      })
+    );
+    return c.json({ success: false, error: "report generation failed" }, 500);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Protected admin trigger — used by the SEEA workflow (no cron slot available
+// on the free plan). Header X-Benchmark-Key must match the secret.
+// ---------------------------------------------------------------------------
+
+app.post("/admin/benchmark-reports", async (c) => {
+  const env = c.env as Env;
+  const expected = env.BENCHMARK_KEY;
+  const provided = c.req.header("X-Benchmark-Key");
+
+  if (!expected || provided !== expected) {
+    return c.json({ error: { code: "UNAUTHORIZED", message: "Invalid benchmark key" } }, 401);
+  }
+
+  try {
+    const reports = await generateBenchmarkReports(env);
+    return c.json({ success: true, reports: reports.length }, 200);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "Benchmark report generation failed",
+        service: "api",
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+      })
+    );
+    return c.json({ success: false, error: "report generation failed" }, 500);
+  }
+});
 
 export default app;

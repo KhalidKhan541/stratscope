@@ -54,6 +54,10 @@ jobs:
           TASK_TYPE: ${{ github.event.inputs.task_type || '' }}
         run: pnpm --filter @stratscope/seea start || echo "SEEA finished with task failures (recorded as failure data)"
 
+      - name: Generate benchmark reports
+        if: always()
+        run: curl -sS -X POST "https://stratscope-api.khalidkhan.workers.dev/admin/benchmark-reports" -H "X-Benchmark-Key: ${{ secrets.STRATSCOPE_BENCHMARK_KEY }}" || echo "benchmark generation skipped"
+
       - name: Upload dataset artifact
         if: always()
         uses: actions/upload-artifact@v4

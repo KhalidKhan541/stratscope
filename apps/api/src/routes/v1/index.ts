@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import type { Env } from "../../workers/env.js";
 import { healthRoutes } from "./health.js";
 import { authRoutes } from "./auth.js";
+import { meRoutes } from "./me.js";
 import { executionRoutes } from "./executions.js";
 import { eventRoutes } from "./events.js";
 import { evaluationRoutes } from "./evaluations.js";
@@ -29,11 +30,16 @@ import { benchmarkRunRoutes } from "./benchmark-runs.js";
 import { syntheticDatasetRoutes } from "./synthetic-datasets.js";
 import { researchExportRoutes } from "./research-exports.js";
 import { seeaExecutionRoutes } from "./seea-executions.js";
+import { ingestRoutes } from "./ingest.js";
 import { llmRoutes } from "./llm.js";
+import { accessExecutionRoutes } from "./access-executions.js";
+import { accessGrantRoutes } from "./access-grants.js";
+import { accessAuditRoutes } from "./access-audit.js";
 
 const v1 = new Hono<{ Bindings: Env }>();
 
 v1.route("/auth", authRoutes);
+v1.route("/me", meRoutes);
 v1.route("/health", healthRoutes);
 
 // Authenticated routes
@@ -58,6 +64,12 @@ v1.route("/benchmark-runs", benchmarkRunRoutes);
 v1.route("/synthetic-datasets", syntheticDatasetRoutes);
 v1.route("/research-exports", researchExportRoutes);
 v1.route("/seea", seeaExecutionRoutes);
+v1.route("/ingest", ingestRoutes);
 v1.route("/llm", llmRoutes);
+
+// Read-only data access for external consumers (e.g. Magma) + owner management
+v1.route("/access/executions", accessExecutionRoutes);
+v1.route("/access/grants", accessGrantRoutes);
+v1.route("/access/audit", accessAuditRoutes);
 
 export { v1 as v1Routes };
