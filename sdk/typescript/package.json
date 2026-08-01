@@ -1,22 +1,28 @@
 {
   "name": "@stratscope/sdk",
   "version": "0.1.0",
-  "description": "StratScope TypeScript SDK — Capture AI execution intelligence",
+  "description": "StratScope agent execution telemetry SDK — trace, batch, retry",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
-  "dependencies": {},
+  "files": ["dist"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.7.0",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.0.0",
     "vitest": "^3.0.0"
   },
-  "files": ["dist", "README.md"],
-  "keywords": ["ai", "execution", "intelligence", "observability", "llm"],
-  "license": "MIT"
+  "keywords": ["ai", "execution", "telemetry", "observability", "llm", "stratscope"]
 }
