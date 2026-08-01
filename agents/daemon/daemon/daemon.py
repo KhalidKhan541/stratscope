@@ -231,6 +231,7 @@ def run_pass(cfg: DaemonConfig, logger: logging.Logger | None = None) -> list[di
                 "tests_passed",
                 "changes",
                 "marked_processed",
+                "error",
             )
             if key in result
         }

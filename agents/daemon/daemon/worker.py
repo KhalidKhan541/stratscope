@@ -149,7 +149,11 @@ def process_issue(cfg: WorkerConfig, owner: str, repo: str, issue: dict) -> dict
     outcome = parse_runner_output(proc.stdout or "")
     if outcome is None:
         result["status"] = "failed"
-        result["error"] = f"bugfixer printed no parseable JSON line (exit {proc.returncode})"
+        stderr_tail = (proc.stderr or "").strip().splitlines()[-5:]
+        result["error"] = (
+            f"bugfixer printed no parseable JSON line (exit {proc.returncode})"
+            + (f"; stderr tail: {' | '.join(stderr_tail)}" if stderr_tail else "")
+        )
     else:
         result["execution_id"] = outcome.get("execution_id")
         result["tests_passed"] = outcome.get("tests_passed")
