@@ -121,7 +121,7 @@ def test_worker_trusts_exit_code_over_json_status(tmp_path, monkeypatch):
 
 def test_worker_unparseable_output_is_failure(tmp_path, monkeypatch):
     def bad_runner(*args, **kwargs):
-        return mock.Mock(returncode=1, stdout="oops no json\n")
+        return mock.Mock(returncode=1, stdout="oops no json\n", stderr="boom\n")
 
     cfg = make_config(tmp_path)
     with mock.patch.object(worker, "ensure_repo", return_value=tmp_path), mock.patch.object(
