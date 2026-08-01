@@ -73,15 +73,14 @@ SYSTEM_PROMPT = (
     "2. The final answer: exactly the word DONE (when the fix is complete).\n\n"
     "Available tools and their args:\n"
     '- read_file    {"path": "relative/path.py"}\n'
-    "- list_files   {}\n"
     '- write_file   {"path": "relative/path.py", "content": "..."}\n'
     '- run_command  {"cmd": "shell command"}\n'
     "- git_status   {}\n"
     '- git_commit   {"message": "commit message"}\n\n'
-    "All paths are relative to the repository root. After each tool call you "
-    "will receive the tool result. Inspect the code, apply the fix, then reply "
-    "exactly DONE. Call list_files at most once; then use read_file on the "
-    "specific files you need. Prefer minimal changes to the fewest files."
+    "All paths are relative to the repository root. The repository layout is "
+    "already provided in your instructions; list_files is NOT available. After "
+    "each tool call you will receive the tool result. Inspect the code, apply "
+    "the fix, then reply exactly DONE. Prefer minimal changes to the fewest files."
 )
 
 
@@ -151,6 +150,7 @@ def plan(state: dict) -> dict:
         [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user}]
     ).strip()
     state["plan"] = reply
+    state["listing"] = listing
     _append(state, "assistant", reply)
     execution.event("agent.plan", {"plan": reply})
     return state
@@ -223,6 +223,7 @@ def edit(state: dict) -> dict:
     provider = _provider()
     context_user = (
         f"Implement the fix in the repository at {state['workdir']}.\n\n"
+        f"Repository layout (truncated):\n{state.get('listing', '')[:MAX_LISTING_CHARS]}\n\n"
         f"Analysis:\n{state.get('analysis', '')}\n\n"
         f"Plan:\n{state.get('plan', '')}\n\n"
         "Use the tools until the fix is complete, then reply exactly DONE."
@@ -235,7 +236,6 @@ def edit(state: dict) -> dict:
 
     iterations = 0
     seen_calls: Set[Tuple[str, str]] = set()
-    list_files_calls = 0
     for _ in range(MAX_EDIT_ITERATIONS):
         iterations += 1
         reply = provider.chat(messages).strip()
@@ -260,23 +260,24 @@ def edit(state: dict) -> dict:
         reject: Optional[str] = None
         if call_key in seen_calls:
             reject = (
-                f"ERROR: you already called {tool} with these exact arguments and it did "
-                "not complete the fix. Do not repeat it. Choose a different action: "
-                "read_file the file you need, write_file the fix, or run_command to test."
+                f"ERROR: you already called {tool} with these exact arguments. "
+                "Stop repeating calls. Apply the fix with write_file, verify with "
+                "run_command, then reply exactly DONE. If you truly cannot proceed, "
+                "reply exactly DONE."
             )
-        elif tool == "list_files" and list_files_calls >= 2:
+        elif tool == "list_files":
             reject = (
-                "ERROR: you already explored the repository with list_files twice. "
-                "Repeated listing makes no progress. The issue points at the files you "
-                "need: read them with read_file, apply the fix with write_file, verify "
-                "with run_command, then reply DONE."
+                "ERROR: list_files is not available in this phase. The repository "
+                "layout is already in your context above. Read the files you need "
+                "with read_file using relative paths (for example "
+                "scripts/seed_bugs/tests/test_seed.py), then write the fix with "
+                "write_file and verify with run_command."
             )
         if reject is not None:
+            seen_calls.add(call_key)
             result = reject
         else:
             seen_calls.add(call_key)
-            if tool == "list_files":
-                list_files_calls += 1
             result = _dispatch(tool, args, state["workdir"])
             if tool in _MUTATING_TOOLS:
                 state["changes"] = state.get("changes", []) + [

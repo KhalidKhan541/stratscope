@@ -50,11 +50,13 @@ class CannedLLM(LLMProvider):
     ) -> None:
         self.replies = list(replies)
         self.calls = 0
+        self.calls_log: list[list[dict]] = []
         self.tokens_in = tokens_in
         self.tokens_out = tokens_out
 
     def chat(self, messages: list[dict]) -> str:
         self.calls += 1
+        self.calls_log.append(list(messages))
         return self.replies.pop(0) if self.replies else "DONE"
 
 

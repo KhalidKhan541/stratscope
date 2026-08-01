@@ -127,7 +127,7 @@ def test_graph_context_required_raises(tmp_path):
     graph.set_context(execution=None, provider=None)
 
 
-def test_graph_rejects_repeated_list_files_and_duplicate_calls(tmp_path):
+def test_graph_rejects_list_files_and_repeated_calls(tmp_path):
     init_git_repo(tmp_path)
     fake = FakeExecution()
     llm = CannedLLM(
@@ -135,9 +135,7 @@ def test_graph_rejects_repeated_list_files_and_duplicate_calls(tmp_path):
             "analysis",
             "plan",
             _tool_call("list_files", {}),
-            _tool_call("list_files", {"path": "sub"}),
             _tool_call("list_files", {}),
-            _tool_call("list_files", {"path": "src"}),
             _tool_call("read_file", {"path": "bug.py"}),
             _tool_call("write_file", {"path": "bug.py", "content": "x = 1\n"}),
             "DONE",
@@ -155,9 +153,27 @@ def test_graph_rejects_repeated_list_files_and_duplicate_calls(tmp_path):
         for e in fake.events
         if e["type"] == "agent.tool_result" and e["payload"]["tool"] == "list_files"
     ]
-    executed = [e for e in list_results if not e["payload"]["result_summary"].startswith("ERROR")]
-    rejected = [e for e in list_results if e["payload"]["result_summary"].startswith("ERROR")]
-    assert len(executed) == 2
-    assert len(rejected) == 2
-    assert "Do not repeat it" in rejected[0]["payload"]["result_summary"]
-    assert "already explored the repository" in rejected[1]["payload"]["result_summary"]
+    assert len(list_results) == 2
+    assert "not available in this phase" in list_results[0]["payload"]["result_summary"]
+    assert "Stop repeating calls" in list_results[1]["payload"]["result_summary"]
+
+
+def test_graph_edit_context_includes_repo_listing(tmp_path):
+    init_git_repo(tmp_path)
+    fake = FakeExecution()
+    llm = CannedLLM(
+        [
+            "analysis",
+            "plan",
+            _tool_call("write_file", {"path": "bug.py", "content": "x = 1\n"}),
+            "DONE",
+            "report",
+        ]
+    )
+    graph.set_context(execution=fake, provider=llm)
+
+    graph.run_graph(_initial_state(tmp_path))
+
+    edit_user_message = llm.calls_log[2][1]["content"]
+    assert "Repository layout (truncated)" in edit_user_message
+    assert "list_files is NOT available" in llm.calls_log[2][0]["content"]
