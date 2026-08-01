@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stratscope"
+version = "0.1.0"
+description = "Python SDK for the StratScope Execution Intelligence Platform"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    { name = "StratScope", email = "khalidkhan46572@gmail.com" },
+]
+keywords = [
+    "stratscope",
+    "ai",
+    "ai-execution",
+    "agents",
+    "telemetry",
+    "observability",
+    "monitoring",
+    "execution-intelligence",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/KhalidKhan541/stratscope"
+Repository = "https://github.com/KhalidKhan541/stratscope"
+Issues = "https://github.com/KhalidKhan541/stratscope/issues"
+
+[tool.setuptools]
+packages = ["stratscope"]
+include-package-data = true
+license-files = ["LICENSE"]
