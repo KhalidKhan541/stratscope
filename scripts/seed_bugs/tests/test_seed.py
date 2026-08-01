@@ -42,7 +42,8 @@ def file_hashes(workdir: Path) -> dict:
 
 def test_every_template_fails_and_reverts(tmp_path):
     write_base_project(tmp_path)
-    assert count_failing_tests(tmp_path) == 0
+    failing, output = pytest_result(tmp_path)
+    assert failing == 0, f"baseline is not green\n--- inner pytest output ---\n{output}"
     for tpl in TEMPLATES:
         module_path = tmp_path / tpl["module"]
         original = module_path.read_text(encoding="utf-8")
@@ -56,7 +57,10 @@ def test_every_template_fails_and_reverts(tmp_path):
         reverted = tpl["revert"](mutated)
         assert reverted == original, f"template {tpl['name']} does not revert cleanly"
         module_path.write_text(reverted, encoding="utf-8")
-        assert count_failing_tests(tmp_path) == 0, f"template {tpl['name']} revert is not green"
+        failing, output = pytest_result(tmp_path)
+        assert failing == 0, (
+            f"template {tpl['name']} revert is not green\n--- inner pytest output ---\n{output}"
+        )
 
 
 def test_deterministic_per_seed(tmp_path):
