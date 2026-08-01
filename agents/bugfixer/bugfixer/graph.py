@@ -61,6 +61,9 @@ GRAPH_BACKEND: str = "unknown"
 
 MAX_EDIT_ITERATIONS = 10
 
+MAX_TOOL_RESULT_CHARS = 3000
+MAX_EDIT_HISTORY_MESSAGES = 8
+
 SYSTEM_PROMPT = (
     "You are the StratScope bugfixer, an autonomous agent that fixes bugs in a "
     "repository. Every reply must be either:\n"
@@ -212,10 +215,11 @@ def edit(state: dict) -> dict:
         f"Plan:\n{state.get('plan', '')}\n\n"
         "Use the tools until the fix is complete, then reply exactly DONE."
     )
+    history = state.get("messages", [])[-MAX_EDIT_HISTORY_MESSAGES:]
     messages: List[Dict[str, str]] = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": context_user},
-    ] + state.get("messages", [])
+    ] + history
 
     iterations = 0
     for _ in range(MAX_EDIT_ITERATIONS):
@@ -244,7 +248,10 @@ def edit(state: dict) -> dict:
             state["changes"] = state.get("changes", []) + [
                 {"tool": tool, "args_summary": str(args)[:500]}
             ]
-        messages = messages + [{"role": "tool", "content": result}]
+        messages = messages + [
+            {"role": "tool", "content": result[:MAX_TOOL_RESULT_CHARS]}
+        ]
+        messages = messages[:2] + messages[2:][-MAX_EDIT_HISTORY_MESSAGES:]
 
     state["messages"] = messages[2:]
     execution.event("agent.edit", {"iterations": iterations})

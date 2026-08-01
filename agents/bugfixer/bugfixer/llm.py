@@ -44,7 +44,9 @@ class GroqProvider(LLMProvider):
             raise ImportError(
                 "langchain-groq is not installed; run: pip install langchain-groq"
             ) from exc
-        self._client: Any = ChatGroq(model=model, api_key=self.api_key, temperature=0)
+        self._client: Any = ChatGroq(
+            model=model, api_key=self.api_key, temperature=0, max_tokens=2048
+        )
         self.tokens_in: Optional[int] = None
         self.tokens_out: Optional[int] = None
 
