@@ -42,3 +42,10 @@ npm-debug.log*
 
 # Workspace
 workspace/
+
+# Keys / Secrets
+scripts/keys/
+apps/api/.benchmark-key
+
+# Provisioned secrets
+scripts/keys/

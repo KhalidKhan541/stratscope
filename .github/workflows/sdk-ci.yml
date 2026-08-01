@@ -1,0 +1,78 @@
+name: SDK CI
+
+on:
+  push:
+    paths:
+      - "sdk/**"
+      - "agents/**"
+      - "scripts/seed_bugs/**"
+  pull_request:
+    paths:
+      - "sdk/**"
+      - "agents/**"
+      - "scripts/seed_bugs/**"
+
+jobs:
+  python:
+    name: Python SDK + Agents
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install packages
+        run: python -m pip install -q -e sdk/python -e agents/bugfixer -e agents/daemon pytest
+
+      - name: Run tests
+        run: python -m pytest sdk/python/tests agents/bugfixer/tests agents/daemon/tests scripts/seed_bugs/tests -q
+
+      - name: Build Python SDK
+        run: |
+          python -m pip install -q build twine
+          cd sdk/python
+          python -m build
+          python -m twine check dist/*
+
+  typescript:
+    name: TypeScript SDK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        run: npm i -g pnpm@latest
+
+      # Using `pnpm install` (not --frozen-lockfile) because the root lockfile
+      # may not yet include the new sdk/* workspace members.
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Typecheck
+        run: pnpm --filter @stratscope/sdk typecheck
+
+      - name: Build
+        run: pnpm --filter @stratscope/sdk build
+
+      - name: Test
+        run: pnpm --filter @stratscope/sdk test

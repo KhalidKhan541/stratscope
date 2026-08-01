@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stratscope-bugfixer"
+version = "0.1.0"
+description = "StratScope bug-fixing agent: a LangGraph agent that fixes GitHub issues and records every step as EIOS telemetry."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "langgraph>=0.2",
+    "langchain-groq>=1.0",
+]
+
+[project.optional-dependencies]
+telemetry = ["stratscope @ file:../../sdk/python"]
+dev = ["pytest"]
+
+[project.scripts]
+bugfixer = "bugfixer.run:main"
+
+[tool.setuptools.packages.find]
+include = ["bugfixer*"]

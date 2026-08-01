@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stratscope-daemon"
+version = "0.1.0"
+description = "Zero-manual-work daemon that feeds GitHub issues to the StratScope bugfixer agent"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["daemon"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
