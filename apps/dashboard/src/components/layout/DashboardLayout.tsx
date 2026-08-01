@@ -4,7 +4,7 @@ import { ReactNode, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ClerkProvider, useUser, useClerk, SignInButton } from "@clerk/clerk-react";
+import { useUser, useClerk, SignInButton } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -16,20 +16,6 @@ const navigation = [
   { name: "Benchmarks", href: "/dashboard/benchmarks", icon: "🏁" },
   { name: "Settings", href: "/dashboard/settings", icon: "⚙️" },
 ];
-
-function ClerkWrapper({ children }: { children: ReactNode }) {
-  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  if (!key || key === "pk_test_placeholder") return <>{children}</>;
-  return (
-    <ClerkProvider
-      publishableKey={key}
-      routerPush={(to: string) => { window.location.href = to; }}
-      routerReplace={(to: string) => { window.location.replace(to); }}
-    >
-      {children}
-    </ClerkProvider>
-  );
-}
 
 function AuthGuard({ children }: { children: ReactNode }) {
   const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -250,16 +236,14 @@ function ClerkHeaderUser() {
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <ClerkWrapper>
-      <AuthGuard>
-        <div className="min-h-screen bg-[#F8FAFC]">
-          <Sidebar />
-          <div className="transition-all duration-300 lg:ml-72">
-            <Header />
-            <main className="p-6 lg:p-8">{children}</main>
-          </div>
+    <AuthGuard>
+      <div className="min-h-screen bg-[#F8FAFC]">
+        <Sidebar />
+        <div className="transition-all duration-300 lg:ml-72">
+          <Header />
+          <main className="p-6 lg:p-8">{children}</main>
         </div>
-      </AuthGuard>
-    </ClerkWrapper>
+      </div>
+    </AuthGuard>
   );
 }

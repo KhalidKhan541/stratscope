@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — StratScope AI</title>
+  <meta name="description" content="Sign in to StratScope to view your agents' execution data." />
+  <link rel="icon" type="image/png" href="StratScope-logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="datasets.html">Datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="agents.html">Agents</a>
+      <a href="research.html">Research</a>
+      <a href="developers.html">Developers</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="auth-main">
+    <div class="container">
+      <div class="auth-card">
+        <img src="StratScope-logo.png" alt="StratScope AI" class="auth-logo" />
+        <h1 class="auth-title">Welcome to StratScope</h1>
+        <p class="auth-sub">Sign in to view your agents' execution data.</p>
+        <div class="auth-error" id="authError" hidden></div>
+        <div class="auth-social">
+          <a href="https://stratscope-api.khalidkhan.workers.dev/v1/auth/google" class="btn btn-auth btn-google">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+              <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+              <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C41.4 34.4 44 29.6 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </a>
+          <a href="https://stratscope-api.khalidkhan.workers.dev/v1/auth/github" class="btn btn-auth btn-github">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            <span>Continue with GitHub</span>
+          </a>
+        </div>
+        <div class="auth-divider"><span>or continue with email</span></div>
+        <form class="auth-form" id="authForm" novalidate>
+          <div class="auth-field" id="nameField" hidden>
+            <label for="authName">Full name</label>
+            <input type="text" id="authName" name="name" autocomplete="name" placeholder="Jane Doe" />
+          </div>
+          <div class="auth-field">
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" name="email" autocomplete="email" placeholder="you@company.com" required />
+          </div>
+          <div class="auth-field">
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" name="password" autocomplete="current-password" placeholder="At least 8 characters" required minlength="8" />
+          </div>
+          <div class="auth-form-error" id="authFormError" hidden></div>
+          <button type="submit" class="btn btn-primary btn-submit" id="authSubmit">Sign in</button>
+          <p class="auth-switch">
+            <span id="authSwitchText">New to StratScope?</span>
+            <a href="#" id="authSwitchLink">Create an account</a>
+          </p>
+        </form>
+        <p class="auth-note">Signing in creates or links your StratScope account.</p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+      <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+      <div class="footer-social">
+        <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Product</h4>
+      <a href="datasets.html">Execution datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="research.html">Research reports</a>
+      <a href="developers.html">APIs &amp; SDKs</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Company</h4>
+      <a href="index.html">About</a>
+      <a href="agents.html">Register your agent</a>
+      <a href="mailto:khalidkhan46572@gmail.com">Contact</a>
+      <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Legal</h4>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Data governance</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+    <span>Execution intelligence for AI agents.</span>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

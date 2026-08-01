@@ -21,7 +21,9 @@
         <a href="developers.html" class="active">Developers</a>
       </nav>
       <div class="nav-actions">
-        <a href="mailto:khalidkhan46572@gmail.com" class="btn btn-primary btn-sm">Get started</a>
+        <a href="auth.html" class="btn btn-secondary btn-sm">Sign in</a>
+        <a href="auth.html" class="btn btn-primary btn-sm">Sign up</a>
+        <a href="auth.html" class="btn btn-primary btn-sm">Get started</a>
         <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
       </div>
     </div>
@@ -47,25 +49,85 @@
             <ul class="checklist">
               <li>REST API with JSON over HTTPS</li>
               <li>Python and TypeScript SDKs</li>
-              <li>Webhook delivery for trace events</li>
+              <li>Anonymized server-side redaction (PII stripped at ingest)</li>
               <li>Idempotent, retry-safe ingestion</li>
             </ul>
             <p class="section-sub">Get an API key: <a href="mailto:khalidkhan46572@gmail.com">khalidkhan46572@gmail.com</a></p>
           </div>
           <div class="code-block-wrap">
-            <pre class="code-block">curl -X POST https://api.stratscope.ai/v1/traces \
-  -H "Authorization: Bearer $STRATSCOPE_KEY" \
+            <pre class="code-block"># pip install stratscope — coming to PyPI. Until then, install from source:
+# git clone https://github.com/KhalidKhan541/stratscope && pip install -e sdk/python
+
+import os
+import stratscope
+
+execution = stratscope.start(
+    api_key=os.environ["STRATSCOPE_API_KEY"],
+    base_url=os.environ["STRATSCOPE_BASE_URL"],
+    project_id=os.environ["STRATSCOPE_PROJECT_ID"],
+    agent_id=os.environ["STRATSCOPE_AGENT_ID"],
+    model="gpt-4o",
+    provider="openai",
+    metadata={"task": "process_refund"},
+)
+
+execution.event(
+    event_type="tool_call",
+    payload={"tool": "search_tickets", "query": "refund #1234"},
+)
+
+execution.finish(
+    status="completed",
+    latency_ms=840,
+    cost_usd=0.0012,
+    tokens_in=1240,
+    tokens_out=212,
+)</pre>
+          </div>
+          <div class="code-block-wrap">
+            <pre class="code-block">npm install @stratscope/sdk
+
+import { StratScopeClient } from "@stratscope/sdk";
+
+// Coming to npm — until then, install from source:
+// git clone https://github.com/KhalidKhan541/stratscope && npm install ./sdk/typescript
+
+const client = new StratScopeClient({
+  apiKey: process.env.STRATSCOPE_API_KEY,
+  baseUrl: process.env.STRATSCOPE_BASE_URL,
+  projectId: process.env.STRATSCOPE_PROJECT_ID,
+  agentId: process.env.STRATSCOPE_AGENT_ID,
+});
+
+const exec = await client.startExecution({
+  model: "gpt-4o",
+  provider: "openai",
+});
+
+exec.event({
+  eventType: "tool_call",
+  payload: { tool: "search_tickets", query: "refund #1234" },
+});
+
+await exec.finish({
+  status: "completed",
+  latencyMs: 840,
+  costUsd: 0.0012,
+  tokensIn: 1240,
+  tokensOut: 212,
+});</pre>
+          </div>
+          <div class="code-block-wrap">
+            <pre class="code-block">curl -X POST https://stratscope-api.khalidkhan.workers.dev/v1/ingest/executions \
+  -H "Authorization: Bearer $STRATSCOPE_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{
-    "agent_id": "support-bot-v3",
-    "task": "process_refund",
-    "trace": [
-      {"step": 1, "tool": "search_tickets", "status": "ok", "latency_ms": 312},
-      {"step": 2, "tool": "verify_auth", "status": "ok", "latency_ms": 89}
-    ],
-    "outcome": "success",
-    "cost_usd": 0.0012
-  }'</pre>
+  -d '{"project_id":"...","agent_id":"...","model":"...","trace_id":"..."}'
+
+# PATCH the execution when it finishes:
+curl -X PATCH https://stratscope-api.khalidkhan.workers.dev/v1/ingest/executions/&lt;execution_id&gt; \
+  -H "Authorization: Bearer $STRATSCOPE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"completed","latency_ms":840,"cost_usd":0.0012,"tokens_in":1240,"tokens_out":212}'</pre>
           </div>
         </div>
       </div>
@@ -78,14 +140,14 @@
         </div>
         <div class="grid-3 reveal">
           <div class="card">
-            <span class="tag">pip install</span>
+            <span class="tag">Beta — from source</span>
             <h3 class="card-title">Python SDK</h3>
-            <p class="card-text">pip install stratscope — Trace capture, batching and retry handling for any Python agent framework.</p>
+            <p class="card-text">pip install stratscope — Trace capture, batching and retry handling for any Python agent framework. Coming to PyPI; until then, install from source.</p>
           </div>
           <div class="card">
-            <span class="tag">npm install</span>
+            <span class="tag">Beta — from source</span>
             <h3 class="card-title">TypeScript SDK</h3>
-            <p class="card-text">npm install @stratscope/sdk — First-class support for Node.js and edge runtimes.</p>
+            <p class="card-text">npm install @stratscope/sdk — First-class support for Node.js and edge runtimes. Coming to npm; until then, install from source.</p>
           </div>
           <div class="card">
             <span class="tag">HTTP</span>

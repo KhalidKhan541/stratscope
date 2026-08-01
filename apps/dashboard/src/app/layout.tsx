@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ClerkProviders } from "@/components/ClerkProviders";
 
 export const metadata: Metadata = {
   title: "StratScope — AI Execution Intelligence",
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-[#F8FAFC] text-[#0F172A] antialiased">{children}</body>
+      <body className="bg-[#F8FAFC] text-[#0F172A] antialiased">
+        <ClerkProviders>{children}</ClerkProviders>
+      </body>
     </html>
   );
 }

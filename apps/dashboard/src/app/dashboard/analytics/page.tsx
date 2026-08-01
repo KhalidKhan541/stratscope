@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useUser } from "@clerk/clerk-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { isClerkConfigured } from "@/components/ClerkProviders";
 
 const metrics = [
   { label: "Total Executions", value: "12,847", change: "+12.5%", positive: true },
@@ -16,12 +19,26 @@ const modelUsage = [
   { name: "Anthropic Claude 3.5", executions: 556, percentage: 4.3 },
 ];
 
+function AnalyticsWelcome() {
+  const { user, isLoaded } = useUser();
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+
+  if (!isLoaded || !email) return null;
+
+  return (
+    <p className="mt-2 text-sm text-[#475569]">
+      Welcome, <span className="font-medium text-[#0F172A]">{email}</span>. Here&apos;s how your agents are performing.
+    </p>
+  );
+}
+
 export default function AnalyticsPage() {
   return (
     <DashboardLayout>
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Analytics</h2>
         <p className="text-[#475569]">Performance metrics and cost analysis across all executions.</p>
+        {isClerkConfigured() && <AnalyticsWelcome />}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -91,6 +108,20 @@ export default function AnalyticsPage() {
               <span className="text-xs text-[#475569]">Running (1.0%)</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-8 bg-white rounded-xl border border-[#E2E8F0] p-6 flex items-start gap-4">
+        <span className="text-xl">🔑</span>
+        <div>
+          <h3 className="text-sm font-semibold text-[#0F172A] mb-1">Your API key</h3>
+          <p className="text-sm text-[#475569]">
+            Create an API key via the developers page in{" "}
+            <Link href="/dashboard/settings" className="text-[#4F46E5] hover:text-[#4338CA] font-medium">
+              Settings
+            </Link>{" "}
+            to connect your SDK and stream agent executions into StratScope.
+          </p>
         </div>
       </div>
     </DashboardLayout>

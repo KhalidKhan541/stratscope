@@ -29,7 +29,7 @@
     var out = text;
     out = out.replace(/your-api-key/gi, KEY_PLACEHOLDER);
     out = out.replace(/YOUR_API_KEY/g, KEY_PLACEHOLDER);
-    out = out.replace(/api_key/gi, KEY_PLACEHOLDER);
+    out = out.replace(/"api_key"/g, "\"" + KEY_PLACEHOLDER + "\"");
     out = out.replace(/sk-[A-Za-z0-9._\-]+/g, KEY_PLACEHOLDER);
     out = out.replace(/https:\/\/api\.stratscope\.ai/g, API_URL);
     out = out.replace(/https:\/\/api\.example\.com/g, API_URL);

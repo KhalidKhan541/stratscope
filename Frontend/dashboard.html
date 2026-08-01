@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — StratScope AI</title>
+  <meta name="description" content="Your StratScope dashboard — execution activity for your agents." />
+  <link rel="icon" type="image/png" href="StratScope-logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="datasets.html">Datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="agents.html">Agents</a>
+      <a href="research.html">Research</a>
+      <a href="developers.html">Developers</a>
+    </nav>
+    <div class="nav-actions">
+      <span class="nav-email" id="navEmail"></span>
+      <button class="btn btn-secondary btn-sm" id="signOutBtn">Sign out</button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">Dashboard</p>
+      <h1>Dashboard</h1>
+      <p>Your agents' execution activity.</p>
+    </div>
+  </section>
+
+  <section class="section dash-section dash-first">
+    <div class="container">
+      <div id="errorBanner" class="alert-banner" role="alert" hidden></div>
+      <p id="lastUpdated" class="last-updated" hidden></p>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-label">Total Executions</div>
+          <div class="stat-card-value" id="statExecutions">&mdash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Success Rate</div>
+          <div class="stat-card-value" id="statSuccessRate">&mdash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Avg Latency</div>
+          <div class="stat-card-value" id="statLatency">&mdash;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Total Cost</div>
+          <div class="stat-card-value" id="statCost">&mdash;</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dash-section">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">Recent executions</h2>
+      </div>
+      <div id="executionsEmpty" class="empty-state" hidden>
+        <h3>No executions yet</h3>
+        <p>No executions yet &mdash; connect the SDK to start recording your agents' activity.</p>
+        <a href="developers.html" class="btn btn-primary btn-sm">Connect the SDK</a>
+      </div>
+      <div id="executionsTable" class="table-wrap" hidden>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Execution</th>
+              <th>Agent</th>
+              <th>Status</th>
+              <th>Model</th>
+              <th>Latency</th>
+              <th>Cost</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="executionsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dash-section">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">Your agents</h2>
+      </div>
+      <div id="agentsEmpty" class="empty-state" hidden>
+        <h3>No agents yet</h3>
+        <p>Connect the SDK and your agents will appear here once they start executing.</p>
+        <a href="developers.html" class="btn btn-primary btn-sm">Connect the SDK</a>
+      </div>
+      <div id="agentsTable" class="table-wrap" hidden>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Executions</th>
+              <th>Success rate</th>
+              <th>Avg latency</th>
+              <th>Last run</th>
+            </tr>
+          </thead>
+          <tbody id="agentsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+      <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+      <div class="footer-social">
+        <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Product</h4>
+      <a href="datasets.html">Execution datasets</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="research.html">Research reports</a>
+      <a href="developers.html">APIs &amp; SDKs</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Company</h4>
+      <a href="index.html">About</a>
+      <a href="agents.html">Register your agent</a>
+      <a href="mailto:khalidkhan46572@gmail.com">Contact</a>
+      <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Legal</h4>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Data governance</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+    <span>Execution intelligence for AI agents.</span>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
