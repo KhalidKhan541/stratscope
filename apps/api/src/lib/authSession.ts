@@ -166,6 +166,38 @@ async function ensureOrganization(db: D1Database): Promise<string> {
   return organizationId;
 }
 
+function randomHex(bytes: number): string {
+  const raw = crypto.getRandomValues(new Uint8Array(bytes));
+  return Array.from(raw)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function createOrganization(db: D1Database, name: string): Promise<string> {
+  const now = new Date().toISOString();
+  const organizationId = crypto.randomUUID();
+
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const slug = `org-${randomHex(4)}`;
+    const existing = await db
+      .prepare(`SELECT id FROM organizations WHERE slug = ?1 LIMIT 1`)
+      .bind(slug)
+      .first<{ id: string }>();
+    if (!existing) {
+      await db
+        .prepare(
+          `INSERT INTO organizations (id, name, slug, created_at, updated_at)
+           VALUES (?1, ?2, ?3, ?4, ?5)`
+        )
+        .bind(organizationId, name, slug, now, now)
+        .run();
+      return organizationId;
+    }
+  }
+
+  return organizationId;
+}
+
 async function insertUser(
   db: D1Database,
   fields: {
@@ -309,7 +341,10 @@ export async function registerWithPassword(
 
   const passwordHash = await hashPassword(fields.password);
   const userId = crypto.randomUUID();
-  const organizationId = await ensureOrganization(db);
+  const organizationId = await createOrganization(
+    db,
+    fields.name?.trim() || "My Organization"
+  );
 
   await insertUser(db, {
     userId,

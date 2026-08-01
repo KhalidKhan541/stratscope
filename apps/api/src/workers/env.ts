@@ -20,4 +20,10 @@ export interface Env {
   GITHUB_CLIENT_SECRET?: string;
   OAUTH_REDIRECT_URL?: string;
   APP_URL?: string;
+
+  SMTP_HOST?: string;
+  SMTP_PORT?: number;
+  SMTP_USER?: string;
+  SMTP_APP_PASSWORD?: string;
+  SMTP_FROM?: string;
 }

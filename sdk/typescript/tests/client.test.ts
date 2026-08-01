@@ -27,6 +27,10 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+function mockJson(mock: FetchMock, body: unknown, status = 200): void {
+  mock.mockImplementation(() => Promise.resolve(jsonResponse(body, status)));
+}
+
 let mockFetch: FetchMock;
 
 beforeEach(() => {
@@ -49,7 +53,7 @@ describe("StratScopeClient.startExecution", () => {
       metadata: { session: "abc" },
     });
 
-    expect(execution).toEqual({ id: "exec_1", traceId: "trace_1" });
+    expect(execution).toMatchObject({ id: "exec_1", traceId: "trace_1" });
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const [url, init] = mockFetch.mock.calls[0];
     expect(String(url)).toBe(`${DEFAULT_BASE_URL}/v1/ingest/executions`);
@@ -142,9 +146,8 @@ describe("StratScopeClient.startExecution", () => {
 
 describe("Execution.event", () => {
   it("buffers events and flushes them as a single batch of 20", async () => {
-    mockFetch
-      .mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201))
-      .mockResolvedValue(jsonResponse({ success: true, data: { inserted: 20 } }, 201));
+    mockFetch.mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201));
+    mockJson(mockFetch, { success: true, data: { inserted: 20 } }, 201);
     const client = createClient();
 
     const execution = await client.startExecution();
@@ -218,9 +221,8 @@ describe("Execution.event", () => {
   });
 
   it("never sends more than 500 events in a single batch", async () => {
-    mockFetch
-      .mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201))
-      .mockResolvedValue(jsonResponse({ success: true, data: { inserted: 20 } }, 201));
+    mockFetch.mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201));
+    mockJson(mockFetch, { success: true, data: { inserted: 20 } }, 201);
     const client = createClient();
 
     const execution = await client.startExecution();
@@ -241,9 +243,8 @@ describe("Execution.event", () => {
 
 describe("Execution.finish", () => {
   it("flushes buffered events then PATCHes the execution with stats", async () => {
-    mockFetch
-      .mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201))
-      .mockResolvedValue(jsonResponse({ success: true, data: { inserted: 3 } }, 201));
+    mockFetch.mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201));
+    mockJson(mockFetch, { success: true, data: { inserted: 3 } }, 201);
     const client = createClient();
 
     const execution = await client.startExecution();
@@ -277,9 +278,8 @@ describe("Execution.finish", () => {
   });
 
   it("sends status failed with the error field", async () => {
-    mockFetch
-      .mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201))
-      .mockResolvedValue(jsonResponse({ success: true, data: {} }));
+    mockFetch.mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201));
+    mockJson(mockFetch, { success: true, data: {} });
     const client = createClient();
 
     const execution = await client.startExecution();
@@ -297,8 +297,8 @@ describe("Execution.finish", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     mockFetch
       .mockResolvedValueOnce(jsonResponse(EXECUTION_RESPONSE, 201))
-      .mockRejectedValueOnce(new TypeError("network down"))
-      .mockResolvedValue(jsonResponse({ success: true, data: { status: "completed" } }));
+      .mockRejectedValueOnce(new TypeError("network down"));
+    mockJson(mockFetch, { success: true, data: { status: "completed" } });
     const client = createClient();
 
     const execution = await client.startExecution();

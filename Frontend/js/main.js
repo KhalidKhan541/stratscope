@@ -59,26 +59,53 @@
     }
 
     var statNumbers = document.querySelectorAll(".stat-number[data-target]");
-    if (statNumbers.length && "IntersectionObserver" in window) {
-      var counterObserver = new IntersectionObserver(
-        function (entries) {
-          each(entries, function (entry) {
-            if (entry.isIntersecting) {
-              animateCounter(entry.target);
-              counterObserver.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.15 }
-      );
-      each(statNumbers, function (el) {
-        counterObserver.observe(el);
-      });
-    } else {
-      each(statNumbers, function (el) {
-        el.textContent = formatStat(el, parseFloat(el.getAttribute("data-target")) || 0);
-      });
+    var statsEndpoint =
+      (window.STRATSCOPE_API_BASE || "https://stratscope-api.khalidkhan.workers.dev") +
+      "/v1/public/stats";
+
+    function setupCounters() {
+      if (statNumbers.length && "IntersectionObserver" in window) {
+        var counterObserver = new IntersectionObserver(
+          function (entries) {
+            each(entries, function (entry) {
+              if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                counterObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.15 }
+        );
+        each(statNumbers, function (el) {
+          counterObserver.observe(el);
+        });
+      } else {
+        each(statNumbers, function (el) {
+          el.textContent = formatStat(el, parseFloat(el.getAttribute("data-target")) || 0);
+        });
+      }
     }
+
+    fetch(statsEndpoint, { headers: { Accept: "application/json" } })
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (payload) {
+        var stats = payload && payload.data ? payload.data : payload;
+        if (!stats) {
+          return;
+        }
+        each(statNumbers, function (el) {
+          var key = el.getAttribute("data-stat-key");
+          if (key && stats[key] !== undefined) {
+            el.setAttribute("data-target", String(stats[key]));
+          }
+        });
+      })
+      .catch(function () {})
+      .finally(function () {
+        setupCounters();
+      });
 
     function animateCounter(el) {
       var target = parseFloat(el.getAttribute("data-target")) || 0;

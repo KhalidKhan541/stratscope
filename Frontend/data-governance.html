@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data governance — StratScope AI</title>
+  <meta name="description" content="How StratScope governs execution data: consent policies, redaction at ingest, key hashing, organization isolation and immutable history." />
+  <link rel="icon" type="image/png" href="StratScope-logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="navbar" id="navbar">
+    <div class="nav-inner container">
+      <a href="index.html" class="logo"><img src="StratScope-logo.png" alt="StratScope AI" /></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="datasets.html">Datasets</a>
+        <a href="benchmarks.html">Benchmarks</a>
+        <a href="agents.html">Agents</a>
+        <a href="research.html">Research</a>
+        <a href="developers.html">Developers</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="auth.html" class="btn btn-secondary btn-sm">Sign in</a>
+        <a href="auth.html" class="btn btn-primary btn-sm">Sign up</a>
+        <a href="auth.html" class="btn btn-primary btn-sm">Get started</a>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="container">
+        <p class="eyebrow">Legal</p>
+        <h1>Data governance.</h1>
+        <p>How execution data is actually handled on the platform — the mechanisms, not the marketing. Last updated August 2026.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">What we collect.</h2>
+        </div>
+        <div class="grid-2 reveal">
+          <div class="card">
+            <span class="tag">Executions</span>
+            <h3 class="card-title">Execution records and events</h3>
+            <p class="card-text">When your SDK or REST client submits an execution, we store the execution record — model, provider, status, tokens, latency, cost, trace metadata — and every event submitted for it: tool calls, payloads and context.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Registration</span>
+            <h3 class="card-title">Agent profiles</h3>
+            <p class="card-text">Agent registration captures name, type, description and an optional email. Every agent is scoped to one organization and one project.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Consent</span>
+            <h3 class="card-title">Consent policies</h3>
+            <p class="card-text">For each agent we store a consent policy (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">consent_policies</code>): whether anonymization is required (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">requires_anonymization</code>), which use cases are allowed (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">allowed_use_cases</code>), a privacy scope (default <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">private</code>) and a retention window (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">retention_days</code>).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">How data is protected.</h2>
+        </div>
+        <div class="grid-2 reveal">
+          <div class="card">
+            <span class="tag">Ingest redaction</span>
+            <h3 class="card-title">Payload redaction at ingest</h3>
+            <p class="card-text">Every event payload passes through the redaction library (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">redactPayload</code> / <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">redactString</code> in <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">apps/api/src/lib/redact.ts</code>). Field-level: keys like <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">password</code>, <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">secret</code>, <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">token</code>, <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">authorization</code> and similar are replaced with <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">[redacted]</code>. Pattern-level: emails, API keys, phone numbers, SSNs, credit cards, IPv4 addresses and private keys are stripped. Nesting beyond 8 levels is truncated, and payload length is capped at ingest (2,000 characters when anonymization is required, 10,000 otherwise).</p>
+          </div>
+          <div class="card">
+            <span class="tag">Key hashing</span>
+            <h3 class="card-title">API keys are hashed, never stored</h3>
+            <p class="card-text">Only the SHA-256 hash of an API key is stored (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">api_keys.key_hash</code>), plus a short prefix for identification. The plaintext key exists once — at issuance. The same applies to external access credentials: a <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">mag_</code> credential is shown once and only its hash is retained.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Isolation</span>
+            <h3 class="card-title">Organization isolation</h3>
+            <p class="card-text">Every query is scoped by <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">organization_id</code>. No code path can read another tenant's executions, events, agents, projects or datasets — the scope is part of the SQL, not left to application discipline.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Anonymization</span>
+            <h3 class="card-title">Anonymization policies</h3>
+            <p class="card-text">Organizations can define anonymization policies (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">anonymization_policies</code>) listing fields to strip, with optional differential-privacy parameters (epsilon, delta) for release-time guarantees.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">Who can access data.</h2>
+        </div>
+        <div class="grid-2 reveal">
+          <div class="card">
+            <span class="tag">Internal</span>
+            <h3 class="card-title">Your organization only</h3>
+            <p class="card-text">Within the platform, only your organization's keys can read your executions and events — and each key is itself scoped to a project, with its own permissions and optional expiry.</p>
+          </div>
+          <div class="card">
+            <span class="tag">External buyers</span>
+            <h3 class="card-title">Access grants for data consumers</h3>
+            <p class="card-text">External data buyers authenticate with access grants (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">access_grants</code>): read-only credentials bound to one organization and an explicit list of agent IDs. Every read is recorded in the access audit log (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">access_audit</code>) for invoicing. Grants are revocable at any time.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Anonymized by default</span>
+            <h3 class="card-title">Consent-aware delivery</h3>
+            <p class="card-text">The external read API (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">/v1/access/executions</code> in <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">access-executions.ts</code>) checks each agent's <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">requires_anonymization</code> flag and redacts payloads, error strings, summaries and reasoning before anything leaves your tenant. If no policy exists, anonymization defaults to on.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Public</span>
+            <h3 class="card-title">Public endpoints</h3>
+            <p class="card-text">The public API (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">/v1/public/*</code>) exposes only aggregate stats and metadata — never raw payloads.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">Retention &amp; immutability.</h2>
+        </div>
+        <div class="grid-2 reveal">
+          <div class="card">
+            <span class="tag">Append-only</span>
+            <h3 class="card-title">History is never overwritten</h3>
+            <p class="card-text">Events are append-only and immutable — there is no update or delete path for event records. Execution records transition through lifecycle status updates (started, completed, failed) but their history is never hard-deleted. A soft-delete flag (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">deleted_at</code>) exists for dashboard and access filtering only; records are physically retained.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Datasets</span>
+            <h3 class="card-title">Versioned, immutable datasets</h3>
+            <p class="card-text">Datasets are released as immutable versions (<code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">datasets</code> + <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">dataset_versions</code>): each version records its record count, schema definition, storage path, checksum and a change summary. A released version can be cited, audited and reproduced — it cannot be silently altered.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Consent</span>
+            <h3 class="card-title">Retention windows</h3>
+            <p class="card-text">Consent policies carry a <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">retention_days</code> setting per agent, and policy changes are themselves auditable. Contact requests are retained for 12 months.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Replay</span>
+            <h3 class="card-title">Everything can be replayed</h3>
+            <p class="card-text">Because history is immutable and versioned, any execution, pipeline stage or dataset release can be replayed or reproduced exactly as it happened — a prerequisite for auditability.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head center">
+          <h2 class="section-title">Your control.</h2>
+        </div>
+        <div class="grid-2 reveal">
+          <div class="card">
+            <span class="tag">Consent</span>
+            <h3 class="card-title">Per-agent consent, changeable</h3>
+            <p class="card-text">Consent policies are per agent: toggle <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">requires_anonymization</code>, restrict <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">allowed_use_cases</code>, or withdraw consent entirely. The platform checks consent against the use case at every point of downstream use. Withdrawal stops future use; already-released dataset versions remain immutable by design.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Keys</span>
+            <h3 class="card-title">Keys and grants you can revoke</h3>
+            <p class="card-text">API keys can be deleted (soft-deleted, with <code style="background:#f6f7f9;border:1px solid #e6e8eb;border-radius:4px;padding:1px 5px;">expires_at</code> support), and access grants can be revoked instantly — a revoked grant stops working on its next request.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Audit</span>
+            <h3 class="card-title">Audit trails</h3>
+            <p class="card-text">Access reads are logged per grant, per request, with row counts and request metadata — so you can see exactly who read what from your tenant, and when.</p>
+          </div>
+          <div class="card">
+            <span class="tag">Contact</span>
+            <h3 class="card-title">Questions and requests</h3>
+            <p class="card-text">For access, correction or deletion requests about your data, write to <a href="mailto:khalidkhan46572@gmail.com" style="font-weight:600;color:#0a0a0a;text-decoration:underline;">khalidkhan46572@gmail.com</a>. We answer.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="StratScope-logo.png" alt="StratScope AI" class="footer-logo" />
+        <p>The execution intelligence platform for AI agents. Turning real-world agent executions into the datasets, benchmarks and analytics the industry runs on.</p>
+        <div class="footer-social">
+          <a href="mailto:khalidkhan46572@gmail.com">Email us</a>
+          <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Product</h4>
+        <a href="datasets.html">Execution datasets</a>
+        <a href="benchmarks.html">Benchmarks</a>
+        <a href="research.html">Research reports</a>
+        <a href="developers.html">APIs &amp; SDKs</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Company</h4>
+        <a href="index.html">About</a>
+        <a href="agents.html">Register your agent</a>
+        <a href="contact.html">Contact</a>
+        <a href="https://www.linkedin.com/in/khalid-khan-4b548033b/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Legal</h4>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="data-governance.html">Data governance</a>
+      </div>
+    </div>
+    <div class="footer-bottom container">
+      <span>&copy; <span id="year"></span> StratScope AI. All rights reserved.</span>
+      <span>Execution intelligence for AI agents.</span>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script src="js/api.js"></script>
+</body>
+</html>

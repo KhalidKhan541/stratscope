@@ -1,0 +1,20 @@
+# Copy to .dev.vars (gitignored — never commit real values).
+# Gmail SMTP for transactional email (contact form keys, confirmations).
+
+# SMTP server host (default: smtp.gmail.com)
+SMTP_HOST=smtp.gmail.com
+
+# SMTP port (default: 465 — implicit TLS)
+SMTP_PORT=465
+
+# The Gmail account that sends mail (required, e.g. khalidkhan46572@gmail.com)
+SMTP_USER=your.email@gmail.com
+
+# 16-char Gmail app password (required). Remove spaces. 2-Step Verification must be ON.
+SMTP_APP_PASSWORD=abcdefghijklmnop
+
+# Optional sender override (defaults to SMTP_USER)
+SMTP_FROM=your.email@gmail.com
+
+# Keep true for port 465
+SMTP_SECURE=true

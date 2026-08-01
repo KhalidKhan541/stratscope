@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard â€” StratScope AI</title>
-  <meta name="description" content="Your StratScope dashboard â€” execution activity for your agents." />
+  <title>Integration &mdash; StratScope AI</title>
+  <meta name="description" content="Your StratScope integration details &mdash; API key, project, and SDK setup." />
   <link rel="icon" type="image/png" href="StratScope-logo.png" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -17,7 +17,6 @@
       <a href="datasets.html">Datasets</a>
       <a href="benchmarks.html">Benchmarks</a>
       <a href="agents.html">Agents</a>
-      <a href="integration.html">Integration</a>
       <a href="research.html">Research</a>
       <a href="developers.html">Developers</a>
       <a href="integration.html">Integration</a>
@@ -32,90 +31,96 @@
 <main>
   <section class="page-head">
     <div class="container">
-      <p class="eyebrow">Dashboard</p>
-      <h1>Dashboard</h1>
-      <p>Your agents' execution activity.</p>
+      <p class="eyebrow">Integration</p>
+      <h1>Integration</h1>
+      <p>Your API credentials and SDK setup.</p>
     </div>
   </section>
 
   <section class="section dash-section dash-first">
     <div class="container">
       <div id="errorBanner" class="alert-banner" role="alert" hidden></div>
-      <p id="lastUpdated" class="last-updated" hidden></p>
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-card-label">Total Executions</div>
-          <div class="stat-card-value" id="statExecutions">&mdash;</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Success Rate</div>
-          <div class="stat-card-value" id="statSuccessRate">&mdash;</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Avg Latency</div>
-          <div class="stat-card-value" id="statLatency">&mdash;</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-label">Total Cost</div>
-          <div class="stat-card-value" id="statCost">&mdash;</div>
-        </div>
+      <div id="integrationEmpty" class="empty-state" hidden>
+        <h3>No tenant yet</h3>
+        <p>No API key or project has been provisioned for this account yet. Request one and we&rsquo;ll email it to you.</p>
+        <a href="contact.html" class="btn btn-primary btn-sm">Request an API key</a>
       </div>
+
+      <div class="section-head">
+        <h2 class="section-title">Credentials</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <tbody>
+            <tr>
+              <th>API key</th>
+              <td><code id="apiKeyValue">&mdash;</code></td>
+              <td class="cell-actions">
+                <button class="btn btn-secondary btn-sm" id="copyApiKeyBtn" type="button">Copy</button>
+              </td>
+            </tr>
+            <tr>
+              <td id="apiKeyStatus" colspan="2">Your API key</td>
+            </tr>
+            <tr>
+              <th>Key prefix</th>
+              <td><code id="keyPrefixValue">&mdash;</code></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Project ID</th>
+              <td><code id="projectIdValue">&mdash;</code></td>
+              <td class="cell-actions">
+                <button class="btn btn-secondary btn-sm" id="copyProjectBtn" type="button">Copy</button>
+              </td>
+            </tr>
+            <tr>
+              <th>Agent ID</th>
+              <td><code id="agentIdValue">&mdash;</code></td>
+              <td class="cell-actions">
+                <button class="btn btn-secondary btn-sm" id="copyAgentBtn" type="button">Copy</button>
+              </td>
+            </tr>
+            <tr>
+              <th>Agent name</th>
+              <td><span id="agentNameValue">&mdash;</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Base URL</th>
+              <td><code id="baseUrlValue">&mdash;</code></td>
+              <td class="cell-actions">
+                <button class="btn btn-secondary btn-sm" id="copyBaseUrlBtn" type="button">Copy</button>
+              </td>
+            </tr>
+            <tr>
+              <th>Ingest endpoint</th>
+              <td><code id="ingestValue">&mdash;</code></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note-text">Your API key is shown only once per key &mdash; store it somewhere safe. Lost it? <a href="contact.html">Contact us</a> and we&rsquo;ll issue a new one.</p>
     </div>
   </section>
 
   <section class="section dash-section">
     <div class="container">
       <div class="section-head">
-        <h2 class="section-title">Recent executions</h2>
+        <h2 class="section-title">Connect the SDK</h2>
       </div>
-      <div id="executionsEmpty" class="empty-state" hidden>
-        <h3>No executions yet</h3>
-        <p>No executions yet &mdash; connect the SDK to start recording your agents' activity.</p>
-        <a href="developers.html" class="btn btn-primary btn-sm">Connect the SDK</a>
+      <div class="empty-state">
+        <h3>Python</h3>
+        <p><code>pip install stratscope</code></p>
+        <button class="btn btn-secondary btn-sm" id="copyPythonBtn" type="button">Copy snippet</button>
       </div>
-      <div id="executionsTable" class="table-wrap" hidden>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Execution</th>
-              <th>Agent</th>
-              <th>Status</th>
-              <th>Model</th>
-              <th>Latency</th>
-              <th>Cost</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody id="executionsBody"></tbody>
-        </table>
+      <div class="empty-state">
+        <h3>TypeScript</h3>
+        <p><code>npm install @stratscope/sdk</code></p>
+        <button class="btn btn-secondary btn-sm" id="copyTsBtn" type="button">Copy snippet</button>
       </div>
-    </div>
-  </section>
-
-  <section class="section dash-section">
-    <div class="container">
-      <div class="section-head">
-        <h2 class="section-title">Your agents</h2>
-      </div>
-      <div id="agentsEmpty" class="empty-state" hidden>
-        <h3>No agents yet</h3>
-        <p>Connect the SDK and your agents will appear here once they start executing.</p>
-        <a href="developers.html" class="btn btn-primary btn-sm">Connect the SDK</a>
-      </div>
-      <div id="agentsTable" class="table-wrap" hidden>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Agent</th>
-              <th>Executions</th>
-              <th>Success rate</th>
-              <th>Avg latency</th>
-              <th>Last run</th>
-            </tr>
-          </thead>
-          <tbody id="agentsBody"></tbody>
-        </table>
-      </div>
+      <p class="note-text">Full usage examples on the <a href="developers.html">Developers</a> page. Every execution your agent records becomes visible in your <a href="dashboard.html">Dashboard</a>.</p>
     </div>
   </section>
 </main>
@@ -156,6 +161,6 @@
   </div>
 </footer>
 <script src="js/main.js"></script>
-<script src="js/dashboard.js"></script>
+<script src="js/integration.js"></script>
 </body>
 </html>

@@ -35,6 +35,7 @@ import { llmRoutes } from "./llm.js";
 import { accessExecutionRoutes } from "./access-executions.js";
 import { accessGrantRoutes } from "./access-grants.js";
 import { accessAuditRoutes } from "./access-audit.js";
+import { contactRoutes } from "./contact.js";
 
 const v1 = new Hono<{ Bindings: Env }>();
 
@@ -71,5 +72,8 @@ v1.route("/llm", llmRoutes);
 v1.route("/access/executions", accessExecutionRoutes);
 v1.route("/access/grants", accessGrantRoutes);
 v1.route("/access/audit", accessAuditRoutes);
+
+// Public contact / API-key request intake (no auth; whitelisted in requireAuth)
+v1.route("/contact", contactRoutes);
 
 export { v1 as v1Routes };

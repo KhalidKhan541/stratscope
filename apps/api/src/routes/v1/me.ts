@@ -38,6 +38,9 @@ const meEventsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(500).optional(),
 });
 
+const INTEGRATION_BASE_URL = "https://stratscope-api.khalidkhan.workers.dev";
+const INTEGRATION_INGEST_ENDPOINT = "/v1/ingest/executions";
+
 function getDb(c: { env: Env }): D1Database | null {
   return c.env.DB ?? null;
 }
@@ -373,6 +376,112 @@ interface EventRow {
   schema_version: string | null;
 }
 
+const DEFAULT_API_BASE = "https://stratscope-api.khalidkhan.workers.dev";
+const INGEST_ENDPOINT = "/v1/ingest/executions";
+const KEY_NAME_PREFIX = "owner-key:";
+
+interface IntegrationKeyRow {
+  id: string;
+  key_prefix: string | null;
+  project_id: string;
+}
+
+interface IntegrationAgentRow {
+  id: string;
+  name: string;
+}
+
+me.get("/integration", async (c) => {
+  const db = getDb(c);
+  if (!db) {
+    return c.json(
+      { error: { code: "SERVICE_UNAVAILABLE", message: "Database not configured" } },
+      503
+    );
+  }
+
+  const user = getSessionUser(c);
+  if (!user) {
+    return c.json({ error: { code: "UNAUTHORIZED", message: "Authentication required" } }, 401);
+  }
+
+  const keyRow = await db
+    .prepare(
+      `SELECT k.id, k.key_prefix, k.project_id
+       FROM api_keys k
+       JOIN projects p ON p.id = k.project_id
+       WHERE k.name = ?1 AND p.organization_id = ?2 AND k.deleted_at IS NULL
+       LIMIT 1`
+    )
+    .bind(`${KEY_NAME_PREFIX}${user.organizationId}`, user.organizationId)
+    .first<IntegrationKeyRow>();
+
+  let projectId: string | null = keyRow?.project_id ?? null;
+  let agent: IntegrationAgentRow | null = null;
+
+  if (projectId) {
+    agent = await db
+      .prepare(
+        `SELECT id, name FROM agents
+         WHERE project_id = ?1 AND deleted_at IS NULL
+         ORDER BY created_at DESC
+         LIMIT 1`
+      )
+      .bind(projectId)
+      .first<IntegrationAgentRow>();
+  } else {
+    const fallbackProject = await db
+      .prepare(
+        `SELECT id FROM projects
+         WHERE organization_id = ?1 AND deleted_at IS NULL
+         ORDER BY created_at ASC
+         LIMIT 1`
+      )
+      .bind(user.organizationId)
+      .first<{ id: string }>();
+    if (fallbackProject) {
+      projectId = fallbackProject.id;
+      agent = await db
+        .prepare(
+          `SELECT id, name FROM agents
+           WHERE project_id = ?1 AND deleted_at IS NULL
+           ORDER BY created_at DESC
+           LIMIT 1`
+        )
+        .bind(projectId)
+        .first<IntegrationAgentRow>();
+    }
+  }
+
+  let rawKey: string | null = null;
+  let keyRetrievable = false;
+  if (keyRow && c.env.KV) {
+    try {
+      rawKey = await c.env.KV.get(`api_key:${keyRow.id}`);
+      keyRetrievable = rawKey !== null;
+    } catch {
+      keyRetrievable = false;
+    }
+  }
+
+  return c.json({
+    data: {
+      api_key: rawKey,
+      key_prefix: keyRow?.key_prefix ?? null,
+      key_retrievable: keyRetrievable,
+      project_id: projectId,
+      agent_id: agent?.id ?? null,
+      agent_name: agent?.name ?? null,
+      base_url: c.env.APP_URL ?? DEFAULT_API_BASE,
+      ingest_endpoint: INGEST_ENDPOINT,
+      sdk: {
+        python: "pip install stratscope",
+        typescript: "npm install @stratscope/sdk",
+      },
+    },
+  });
+});
+
 me.get(
   "/events",
   validate({ query: meEventsQuerySchema }),
@@ -430,5 +539,106 @@ me.get(
     return c.json({ data: events });
   }
 );
+
+interface OwnerKeyRow {
+  id: string;
+  key_prefix: string;
+  project_id: string;
+}
+
+interface AgentLookupRow {
+  id: string;
+  name: string;
+}
+
+me.get("/integration", async (c) => {
+  const db = getDb(c);
+  if (!db) {
+    return c.json(
+      { error: { code: "SERVICE_UNAVAILABLE", message: "Database not configured" } },
+      503
+    );
+  }
+
+  const user = getSessionUser(c);
+  if (!user) {
+    return c.json({ error: { code: "UNAUTHORIZED", message: "Authentication required" } }, 401);
+  }
+
+  const ownerKey = await db
+    .prepare(
+      `SELECT k.id, k.key_prefix, k.project_id
+       FROM api_keys k
+       JOIN projects p ON p.id = k.project_id
+       WHERE k.name = 'owner-key:' || ?1
+         AND p.organization_id = ?1
+         AND k.deleted_at IS NULL
+       LIMIT 1`
+    )
+    .bind(user.organizationId)
+    .first<OwnerKeyRow>();
+
+  let apiKey: string | null = null;
+  let keyRetrievable = false;
+
+  if (ownerKey && c.env.KV) {
+    const raw = await c.env.KV.get(`api_key:${ownerKey.id}`);
+    if (raw !== null) {
+      apiKey = raw;
+      keyRetrievable = true;
+    }
+  }
+
+  let projectId: string | null = ownerKey?.project_id ?? null;
+
+  if (!projectId) {
+    const project = await db
+      .prepare(
+        `SELECT id
+         FROM projects
+         WHERE organization_id = ?1 AND deleted_at IS NULL
+         ORDER BY created_at DESC
+         LIMIT 1`
+      )
+      .bind(user.organizationId)
+      .first<{ id: string }>();
+    projectId = project?.id ?? null;
+  }
+
+  let agentId: string | null = null;
+  let agentName: string | null = null;
+
+  if (projectId) {
+    const agent = await db
+      .prepare(
+        `SELECT id, name
+         FROM agents
+         WHERE project_id = ?1 AND deleted_at IS NULL
+         ORDER BY created_at DESC
+         LIMIT 1`
+      )
+      .bind(projectId)
+      .first<AgentLookupRow>();
+    agentId = agent?.id ?? null;
+    agentName = agent?.name ?? null;
+  }
+
+  return c.json({
+    data: {
+      api_key: apiKey,
+      key_prefix: ownerKey?.key_prefix ?? null,
+      key_retrievable: keyRetrievable,
+      project_id: projectId,
+      agent_id: agentId,
+      agent_name: agentName,
+      base_url: INTEGRATION_BASE_URL,
+      ingest_endpoint: INTEGRATION_INGEST_ENDPOINT,
+      sdk: {
+        python: "pip install stratscope",
+        typescript: "npm install @stratscope/sdk",
+      },
+    },
+  });
+});
 
 export { me as meRoutes };

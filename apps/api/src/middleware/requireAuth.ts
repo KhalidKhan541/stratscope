@@ -7,7 +7,8 @@ export async function requireAuth(c: Context, next: Next): Promise<Response | vo
     c.req.path.startsWith("/v1/ingest") ||
     c.req.path.startsWith("/v1/access") ||
     c.req.path.startsWith("/v1/auth") ||
-    c.req.path.startsWith("/v1/me")
+    c.req.path.startsWith("/v1/me") ||
+    c.req.path.startsWith("/v1/contact")
   ) {
     await next();
     return;
